@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_film"
+        android:icon="@drawable/ic_film"
+        android:title="@string/nav_film" />
+    <item
+        android:id="@+id/menu_cinema"
+        android:icon="@drawable/ic_cinema"
+        android:title="@string/nav_cinema" />
+    <item
+        android:id="@+id/menu_food"
+        android:icon="@drawable/ic_food"
+        android:title="@string/nav_food" />
+    <item
+        android:id="@+id/menu_sale"
+        android:icon="@drawable/ic_sale"
+        android:title="@string/nav_sale" />
+    <item
+        android:id="@+id/menu_ticket"
+        android:icon="@drawable/ic_ticket"
+        android:title="@string/nav_ticket" />
+</menu>

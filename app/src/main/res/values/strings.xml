@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">film</string>
+    <string name="nav_film">Film</string>
+    <string name="nav_cinema">Cinema</string>
+    <string name="nav_food">Food</string>
+    <string name="nav_sale">Sale</string>
+    <string name="nav_ticket">Ticket</string>
+    <string name="label_release_date">Release Date: </string>
+    <string name="label_duration">Duration: </string>
+    <string name="label_genres">Genres: </string>
+    <string name="label_director">Director: </string>
+    <string name="label_country">Country: </string>
+    <string name="btn_trailer">Watch Trailer</string>
+</resources>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "466965585181",
+    "project_id": "movieticketapp-9473f",
+    "storage_bucket": "movieticketapp-9473f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466965585181:android:2a9729cf0b1c51336215f4",
+        "android_client_info": {
+          "package_name": "com.example.film"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlGgtgJI-CD7A62rmlnyrdvD7uP9t8ni8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
