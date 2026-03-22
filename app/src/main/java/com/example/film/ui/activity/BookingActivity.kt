@@ -1,5 +1,6 @@
 package com.example.film.ui.activity
 
+import android.content.Intent
 import com.example.film.Common
 import com.example.film.databinding.ActivityBookingBinding
 import com.example.film.ui.adapter.DateAdapter
@@ -20,7 +21,8 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
         adapterTime = TimeAdapter(
             Common.generateShowTimes(true, 0, 24, 3).toMutableList()
         ) { time ->
-            // xử lý click
+            val intent = Intent(this, SeatCinemaActivity::class.java)
+            startActivity(intent)
         }
         binding.lstTime.adapter = adapterTime
 

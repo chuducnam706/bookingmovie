@@ -7,13 +7,21 @@
     android:layout_height="match_parent"
     tools:context=".ui.activity.SeatCinemaActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/lstSeat"
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:layout_constraintTop_toTopOf="parent"
-        app:spanCount="10"
-        tools:listitem="@layout/item_seat_view" />
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/_16sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/lstSeat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="10"
+            tools:listitem="@layout/item_seat_view" />
+            
+    </HorizontalScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
