@@ -43,6 +43,13 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>(ActivityDetailBinding
         binding.btnBack.setOnClickListener {
             finish()
         }
+        binding.btnBuyTicket.setOnClickListener {
+            val intent = Intent(this, BookingActivity::class.java)
+            intent.putExtra("movie_name", data?.original_title)
+            intent.putExtra("movie_poster", data?.poster_path)
+            startActivity(intent)
+        }
+
     }
 
     private fun updateBasicUI(movie: FilmDTO) {

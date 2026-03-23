@@ -52,6 +52,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.2")
     implementation("com.github.bumptech.glide:glide:5.0.5")
     implementation("com.google.firebase:firebase-config:21.6.0")
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+
 
     implementation("com.intuit.sdp:sdp-android:1.1.1")
     implementation("com.intuit.ssp:ssp-android:1.1.1")

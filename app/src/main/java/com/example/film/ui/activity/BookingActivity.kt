@@ -3,6 +3,7 @@ package com.example.film.ui.activity
 import android.content.Intent
 import com.example.film.Common
 import com.example.film.databinding.ActivityBookingBinding
+import com.example.film.ui.adapter.CinemaAdapter
 import com.example.film.ui.adapter.DateAdapter
 import com.example.film.ui.adapter.TimeAdapter
 import com.example.moneymanagement.presentation.view.base.BaseActivity
@@ -11,29 +12,55 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
 
     private lateinit var adapterDate: DateAdapter
     private lateinit var adapterTime : TimeAdapter
+    private lateinit var adapterCinema : CinemaAdapter
+    private var selectedCinema: String = ""
+    private var selectedDate: String = ""
 
 
     override fun initializeComponent() {
         super.initializeComponent()
 
+        // 1. Initialize Date
         val dates = Common.initDate()
-
-        adapterTime = TimeAdapter(
-            Common.generateShowTimes(true, 0, 24, 3).toMutableList()
-        ) { time ->
-            val intent = Intent(this, SeatCinemaActivity::class.java)
-            startActivity(intent)
-        }
-        binding.lstTime.adapter = adapterTime
-
+        selectedDate = dates[0]
         adapterDate = DateAdapter(dates.toMutableList()){ date ->
+            selectedDate = date
             val position = dates.indexOf(date)
             val isToday = position == 0
             adapterTime.updateData(Common.generateShowTimes(isToday, 0, 24, 3))
         }
         binding.lstDate.adapter = adapterDate
 
+        // 2. Initialize Cinema
+        val cinemas = Common.initCinema()
+        selectedCinema = cinemas[0]
+        adapterCinema = CinemaAdapter(cinemas.toMutableList()) { cinema ->
+            selectedCinema = cinema
+        }
+        binding.lstCinema.adapter = adapterCinema
+
+        val movieName = intent.getStringExtra("movie_name") ?: ""
+        val moviePoster = intent.getStringExtra("movie_poster") ?: ""
+
+        // 3. Initialize Time
+        adapterTime = TimeAdapter(
+            Common.generateShowTimes(true, 0, 24, 3).toMutableList()
+        ) { time ->
+            val intent = Intent(this, SeatCinemaActivity::class.java)
+            intent.putExtra("movie_name", movieName)
+            intent.putExtra("movie_poster", moviePoster)
+            intent.putExtra("selected_cinema", selectedCinema)
+            intent.putExtra("selected_date", selectedDate)
+            intent.putExtra("selected_time", time)
+            startActivity(intent)
+        }
+
+        binding.lstTime.adapter = adapterTime
+
     }
+
+
+
 
 }
 

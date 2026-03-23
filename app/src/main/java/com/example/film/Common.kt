@@ -29,6 +29,27 @@ object Common {
 
     }
 
+    /**
+     * Extract just the dd/MM part from a display date like "Th 2 - 23/03"
+     * This ensures the key is consistent across all devices.
+     */
+    fun extractDateKey(displayDate: String): String {
+        // displayDate format: "Th 2 - 23/03" or "T.2 - 23/03" etc.
+        // We just take the part after " - "
+        return displayDate.substringAfter(" - ", displayDate).trim()
+    }
+
+    fun initCinema() : List<String> {
+        return listOf(
+            "CGV Landmark 81",
+            "Lotte Cinema Gò Vấp",
+            "Galaxy Nguyễn Du",
+            "BHD Star Thảo Điền",
+            "Beta Cinema Quang Trung"
+        )
+    }
+
+
 
     fun generateShowTimes(isToday: Boolean, startHour: Int, endHour: Int, stepHour: Int): List<String> {
         val result: MutableList<String> = ArrayList<String>()

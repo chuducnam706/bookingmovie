@@ -1,27 +1,184 @@
 package com.example.film.ui.activity
 
-import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.example.film.R
+import android.widget.Toast
+import com.example.film.Common
+import com.example.film.RemoteConfigHelper
 import com.example.film.databinding.ActivitySeatCinemaBinding
+import com.example.film.model.BookingModel
 import com.example.film.ui.adapter.SeatAdapter
 import com.example.moneymanagement.presentation.view.base.BaseActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class SeatCinemaActivity : BaseActivity<ActivitySeatCinemaBinding>(ActivitySeatCinemaBinding::inflate) {
 
-        private lateinit var adapter : SeatAdapter
-
+    private lateinit var adapter: SeatAdapter
+    private var selectedSeats: MutableList<String> = mutableListOf()
+    private var bookedSeats: MutableList<String> = mutableListOf()
+    private var ticketPrice: Long = 0L
+    private var showKey: String = ""
+    private var seatListener: ListenerRegistration? = null
+    private val db = FirebaseFirestore.getInstance()
 
     override fun initializeComponent() {
         super.initializeComponent()
 
-        adapter = SeatAdapter()
-        binding.lstSeat.adapter = adapter
+        val cinemaName = intent.getStringExtra("selected_cinema") ?: ""
+        val date = intent.getStringExtra("selected_date") ?: ""
+        val time = intent.getStringExtra("selected_time") ?: ""
+        val movieName = intent.getStringExtra("movie_name") ?: ""
+        val moviePoster = intent.getStringExtra("movie_poster") ?: ""
 
+        // Use only the dd/MM part of the date for the key — consistent across all devices
+        val dateKey = Common.extractDateKey(date)
+
+        // Create a safe document ID — includes movie name so different films have separate seats
+        showKey = "${movieName}_${cinemaName}_${dateKey}_${time}"
+            .replace("/", "-")
+            .replace(" ", "_")
+
+        // Fetch ticket price from Firebase Remote Config
+        RemoteConfigHelper.fetchTicketPrice { price ->
+            ticketPrice = price
+            updateUI(selectedSeats.size)
+        }
+
+        // Listen to ONE document (no query, no index needed)
+        listenToShowtimeDocument()
+
+        binding.btnBack.setOnClickListener { finish() }
+
+        binding.btnBuy.setOnClickListener {
+            if (selectedSeats.isEmpty()) {
+                Toast.makeText(this, "Vui lòng chọn ít nhất 1 ghế", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            processBooking(movieName, moviePoster, cinemaName, date, time)
+        }
     }
 
+    /**
+     * Listen to a SINGLE DOCUMENT at showtimes/{showKey}.
+     * Document listeners never need indexes — they always work.
+     * When any user books a seat, this fires instantly on all devices.
+     */
+    private fun listenToShowtimeDocument() {
+        val docRef = db.collection("showtimes").document(showKey)
 
+        seatListener = docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                android.util.Log.e("SeatCinema", "Listen failed: ${e.message}", e)
+                // If doc doesn't exist yet, just show empty seats
+                setupSeatList()
+                return@addSnapshotListener
+            }
+
+            bookedSeats.clear()
+            if (snapshot != null && snapshot.exists()) {
+                val seats = snapshot.get("bookedSeats") as? List<String> ?: emptyList()
+                bookedSeats.addAll(seats)
+            }
+
+            // Auto-deselect any seats that were just booked by someone else
+            val conflict = selectedSeats.filter { bookedSeats.contains(it) }
+            if (conflict.isNotEmpty()) {
+                selectedSeats.removeAll(conflict.toSet())
+                Toast.makeText(this, "Ghế ${conflict.joinToString(", ")} vừa bị người khác đặt!", Toast.LENGTH_LONG).show()
+            }
+
+            setupSeatList()
+            updateUI(selectedSeats.size)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        seatListener?.remove()
+    }
+
+    private fun setupSeatList() {
+        val seatList = mutableListOf<String>()
+        val rows = listOf("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
+        for (row in rows) {
+            for (col in 1..10) {
+                seatList.add("$row$col")
+            }
+        }
+        adapter = SeatAdapter(seatList, selectedSeats, bookedSeats) { count, _ ->
+            updateUI(count)
+        }
+        binding.lstSeat.adapter = adapter
+    }
+
+    private fun updateUI(count: Int) {
+        binding.txtSelectedSeats.text = if (selectedSeats.isEmpty()) "Chưa chọn" else "Đã chọn: ${selectedSeats.joinToString(", ")}"
+        binding.txtTotalPrice.text = "${count * ticketPrice}đ"
+    }
+
+    /**
+     * Uses a Firestore TRANSACTION to atomically:
+     * 1. Read the current booked seats from showtimes/{showKey}
+     * 2. Check if any selected seat is already taken
+     * 3. If not, add the new seats to the document
+     * 4. Create the booking record for ticket history
+     */
+    private fun processBooking(movieName: String, moviePoster: String, cinemaName: String, date: String, time: String) {
+        val auth = FirebaseAuth.getInstance()
+        val uid = auth.currentUser?.uid ?: return
+
+        binding.btnBuy.isEnabled = false
+
+        val showtimeRef = db.collection("showtimes").document(showKey)
+        val seatsToBook = ArrayList(selectedSeats) // Copy
+
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(showtimeRef)
+
+            // Get current booked seats
+            val currentBooked = if (snapshot.exists()) {
+                snapshot.get("bookedSeats") as? List<String> ?: emptyList()
+            } else {
+                emptyList()
+            }
+
+            // Check for conflicts
+            val conflicts = seatsToBook.filter { currentBooked.contains(it) }
+            if (conflicts.isNotEmpty()) {
+                throw com.google.firebase.firestore.FirebaseFirestoreException(
+                    "Ghế ${conflicts.joinToString(", ")} đã bị đặt rồi!",
+                    com.google.firebase.firestore.FirebaseFirestoreException.Code.ABORTED
+                )
+            }
+
+            // Merge new seats into the document
+            val updatedSeats = currentBooked + seatsToBook
+            transaction.set(showtimeRef, hashMapOf("bookedSeats" to updatedSeats, "showKey" to showKey), com.google.firebase.firestore.SetOptions.merge())
+
+            // Also create the booking record for ticket history
+            val bookingId = db.collection("bookings").document().id
+            val bookingRef = db.collection("bookings").document(bookingId)
+            val booking = BookingModel(
+                bookingId = bookingId,
+                userId = uid,
+                movieName = movieName,
+                moviePoster = moviePoster,
+                cinemaName = cinemaName,
+                date = date,
+                time = time,
+                showKey = showKey,
+                seats = seatsToBook,
+                totalPrice = seatsToBook.size * ticketPrice
+            )
+            transaction.set(bookingRef, booking)
+
+            null // Transaction success
+        }.addOnSuccessListener {
+            Toast.makeText(this, "Đặt vé thành công!", Toast.LENGTH_SHORT).show()
+            finish()
+        }.addOnFailureListener { e ->
+            Toast.makeText(this, e.message ?: "Lỗi đặt vé", Toast.LENGTH_SHORT).show()
+            binding.btnBuy.isEnabled = true
+        }
+    }
 }

@@ -60,11 +60,9 @@ class ChooseFilmFragment :
 
     private fun moveToBooking(data : FilmDTO){
         val intent = Intent(requireContext(), BookingActivity::class.java)
-        val gson = Gson()
-        val sentData = gson.toJson(data)
-        intent.putExtra("FILM", sentData)
+        intent.putExtra("movie_name", data.original_title ?: "")
+        intent.putExtra("movie_poster", data.poster_path ?: "")
         startActivity(intent)
-
     }
 
 
