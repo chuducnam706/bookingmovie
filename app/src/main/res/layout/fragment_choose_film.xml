@@ -5,30 +5,48 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#00C4CA"
+    android:background="#0F172A"
     tools:context=".ui.activity.MainActivity">
+
+    <!-- Category Tabs -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1E293B"
+        app:tabGravity="fill"
+        app:tabMode="fixed"
+        app:tabIndicatorColor="#3B82F6"
+        app:tabIndicatorHeight="3dp"
+        app:tabSelectedTextColor="#3B82F6"
+        app:tabTextColor="#94A3B8"
+        app:tabTextAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lstFilm"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/tabCategory" />
 
     <TextView
         android:id="@+id/tvLoading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="loading..."
-        android:textSize="50sp"
-        android:visibility="visible"
+        android:text="Đang tải..."
+        android:textSize="18sp"
+        android:textColor="#94A3B8"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/tabCategory" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

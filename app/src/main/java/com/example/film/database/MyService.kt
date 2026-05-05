@@ -12,6 +12,18 @@ interface MyService {
         @Query("page") page: Int
     ): ViewPageDTO
 
+    @GET("movie/now_playing")
+    suspend fun getNowPlayingMovies(
+        @Query("api_key") apiKey: String,
+        @Query("page") page: Int
+    ): ViewPageDTO
+
+    @GET("movie/upcoming")
+    suspend fun getUpcomingMovies(
+        @Query("api_key") apiKey: String,
+        @Query("page") page: Int
+    ): ViewPageDTO
+
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,
