@@ -11,9 +11,12 @@ activity = "1.12.2"
 constraintlayout = "2.2.1"
 firebaseAuthKtx = "23.2.0"
 firebaseFirestoreKtx = "25.1.2"
+lifecycleKtx = "2.8.7"
 
 
 [libraries]
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleKtx" }
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleKtx" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

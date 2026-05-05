@@ -15,6 +15,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
         adapter = MainAdapter(this)
         binding.viewPager2.adapter = adapter
+        binding.viewPager2.isUserInputEnabled = false
 
         // Link BottomNavigationView with ViewPager2
         binding.nav.setOnItemSelectedListener { item ->

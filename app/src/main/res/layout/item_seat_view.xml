@@ -2,15 +2,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/_4sdp"
+    android:layout_margin="2dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.example.film.custom.CustomCinema
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/seatView"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:padding="@dimen/_8sdp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 

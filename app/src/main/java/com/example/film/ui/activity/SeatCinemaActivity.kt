@@ -33,10 +33,9 @@ class SeatCinemaActivity : BaseActivity<ActivitySeatCinemaBinding>(ActivitySeatC
         // Use only the dd/MM part of the date for the key — consistent across all devices
         val dateKey = Common.extractDateKey(date)
 
-        // Create a safe document ID — includes movie name so different films have separate seats
-        showKey = "${movieName}_${cinemaName}_${dateKey}_${time}"
-            .replace("/", "-")
-            .replace(" ", "_")
+        // Create a safe document ID — alphanumeric, underscores and hyphens only
+        val rawKey = "${movieName}_${cinemaName}_${dateKey}_${time}"
+        showKey = rawKey.replace(Regex("[^a-zA-Z0-9_-]"), "_")
 
         // Fetch ticket price from Firebase Remote Config
         RemoteConfigHelper.fetchTicketPrice { price ->
@@ -58,11 +57,6 @@ class SeatCinemaActivity : BaseActivity<ActivitySeatCinemaBinding>(ActivitySeatC
         }
     }
 
-    /**
-     * Listen to a SINGLE DOCUMENT at showtimes/{showKey}.
-     * Document listeners never need indexes — they always work.
-     * When any user books a seat, this fires instantly on all devices.
-     */
     private fun listenToShowtimeDocument() {
         val docRef = db.collection("showtimes").document(showKey)
 
@@ -99,12 +93,32 @@ class SeatCinemaActivity : BaseActivity<ActivitySeatCinemaBinding>(ActivitySeatC
 
     private fun setupSeatList() {
         val seatList = mutableListOf<String>()
-        val rows = listOf("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
-        for (row in rows) {
-            for (col in 1..10) {
-                seatList.add("$row$col")
+        val rowLabels = listOf("A", "B", "C", "D", "E", "F", "G", "H", "I")
+        
+        val layout = listOf(
+            "__SS__SS__", // A
+            "_SSS__SSS_", // B
+            "SSSS__SSSS", // C
+            "SSSS__SSSS", // D
+            "SSSS__SSSS", // E
+            "SSSS__SSSS", // F
+            "SSSS__SSSS", // G
+            "SSSS__SSSS", // H
+            "SSSSSSSSSS"  // I
+        )
+
+        for (i in layout.indices) {
+            val rowConfig = layout[i]
+            val rowLabel = rowLabels[i]
+            for (j in rowConfig.indices) {
+                if (rowConfig[j] == 'S') {
+                    seatList.add("$rowLabel${j + 1}")
+                } else {
+                    seatList.add("_")
+                }
             }
         }
+        
         adapter = SeatAdapter(seatList, selectedSeats, bookedSeats) { count, _ ->
             updateUI(count)
         }
@@ -125,8 +139,15 @@ class SeatCinemaActivity : BaseActivity<ActivitySeatCinemaBinding>(ActivitySeatC
      */
     private fun processBooking(movieName: String, moviePoster: String, cinemaName: String, date: String, time: String) {
         val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid ?: return
-
+        val user = auth.currentUser
+        
+        if (user == null) {
+            Toast.makeText(this, "Vui lòng đăng nhập để đặt vé", Toast.LENGTH_SHORT).show()
+            // Optional: Redirect to login activity here if you have one
+            return
+        }
+        
+        val uid = user.uid
         binding.btnBuy.isEnabled = false
 
         val showtimeRef = db.collection("showtimes").document(showKey)
@@ -137,7 +158,9 @@ class SeatCinemaActivity : BaseActivity<ActivitySeatCinemaBinding>(ActivitySeatC
 
             // Get current booked seats
             val currentBooked = if (snapshot.exists()) {
-                snapshot.get("bookedSeats") as? List<String> ?: emptyList()
+                val data = snapshot.data
+                @Suppress("UNCHECKED_CAST")
+                data?.get("bookedSeats") as? List<String> ?: emptyList()
             } else {
                 emptyList()
             }
@@ -145,15 +168,19 @@ class SeatCinemaActivity : BaseActivity<ActivitySeatCinemaBinding>(ActivitySeatC
             // Check for conflicts
             val conflicts = seatsToBook.filter { currentBooked.contains(it) }
             if (conflicts.isNotEmpty()) {
-                throw com.google.firebase.firestore.FirebaseFirestoreException(
-                    "Ghế ${conflicts.joinToString(", ")} đã bị đặt rồi!",
-                    com.google.firebase.firestore.FirebaseFirestoreException.Code.ABORTED
-                )
+                throw Exception("Ghế ${conflicts.joinToString(", ")} đã bị đặt rồi!")
             }
 
             // Merge new seats into the document
             val updatedSeats = currentBooked + seatsToBook
-            transaction.set(showtimeRef, hashMapOf("bookedSeats" to updatedSeats, "showKey" to showKey), com.google.firebase.firestore.SetOptions.merge())
+            val showtimeData = hashMapOf(
+                "bookedSeats" to updatedSeats,
+                "showKey" to showKey,
+                "movieName" to movieName,
+                "cinemaName" to cinemaName
+            )
+            
+            transaction.set(showtimeRef, showtimeData)
 
             // Also create the booking record for ticket history
             val bookingId = db.collection("bookings").document().id
@@ -177,7 +204,13 @@ class SeatCinemaActivity : BaseActivity<ActivitySeatCinemaBinding>(ActivitySeatC
             Toast.makeText(this, "Đặt vé thành công!", Toast.LENGTH_SHORT).show()
             finish()
         }.addOnFailureListener { e ->
-            Toast.makeText(this, e.message ?: "Lỗi đặt vé", Toast.LENGTH_SHORT).show()
+            android.util.Log.e("SeatCinema", "Booking failed", e)
+            val errorMsg = when {
+                e.message?.contains("PERMISSION_DENIED") == true -> "Lỗi: Bạn không có quyền ghi dữ liệu. Kiểm tra Firestore Rules."
+                e.message?.contains("NOT_FOUND") == true -> "Lỗi: Không tìm thấy dữ liệu."
+                else -> e.message ?: "Lỗi không xác định"
+            }
+            Toast.makeText(this, "Lỗi đặt vé: $errorMsg", Toast.LENGTH_LONG).show()
             binding.btnBuy.isEnabled = true
         }
     }

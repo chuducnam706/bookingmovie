@@ -20,6 +20,14 @@ class SeatAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val seatId = seatList[position]
+        
+        if (seatId == "_") {
+            holder.binding.seatView.visibility = android.view.View.INVISIBLE
+            holder.binding.seatView.setOnClickListener(null)
+            return
+        }
+        
+        holder.binding.seatView.visibility = android.view.View.VISIBLE
         val isBooked = bookedSeats.contains(seatId)
         
         holder.binding.seatView.seatId = seatId

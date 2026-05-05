@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    android:id="@+id/cardContainer"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="@dimen/_8sdp">
+    android:layout_marginVertical="4dp"
+    app:cardBackgroundColor="#334155"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp">
 
     <TextView
         android:id="@+id/txtCinema"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/_12sdp"
-        android:paddingVertical="@dimen/_8sdp"
+        android:padding="16dp"
         android:text="Cinema Name"
         android:textColor="@color/white"
         android:textSize="14sp"
-        android:background="@drawable/bg_border_white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textStyle="bold" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

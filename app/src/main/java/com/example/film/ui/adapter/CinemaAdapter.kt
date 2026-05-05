@@ -31,10 +31,10 @@ class CinemaAdapter(
         fun bindView(name: String, position: Int) {
             binding.txtCinema.text = name
             if (position == selectedPosition) {
-                binding.txtCinema.setBackgroundColor(Color.parseColor("#FF9800"))
+                binding.cardContainer.setCardBackgroundColor(Color.parseColor("#3B82F6"))
                 binding.txtCinema.setTextColor(Color.WHITE)
             } else {
-                binding.txtCinema.setBackgroundColor(Color.TRANSPARENT)
+                binding.cardContainer.setCardBackgroundColor(Color.parseColor("#334155"))
                 binding.txtCinema.setTextColor(Color.WHITE)
             }
             binding.root.setOnClickListener {

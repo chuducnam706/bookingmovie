@@ -28,27 +28,35 @@ class CustomCinema @JvmOverloads constructor(
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
+    private val seatDrawable = context.getDrawable(com.example.film.R.drawable.ic_cinema_seat)?.mutate()
+
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.BLACK
         textAlign = Paint.Align.CENTER
-        textSize = 40f
+        textSize = 18f
+        alpha = 255
+        isFakeBoldText = true
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        // màu nền ghế
-        paint.color = when {
-            isBookedSeat -> Color.GRAY
-            isSelectedSeat -> Color.GREEN
-            else -> Color.LTGRAY
+        val tintColor = when {
+            isBookedSeat -> Color.parseColor("#C2185B") // Dark Pink (Reserved)
+            isSelectedSeat -> Color.parseColor("#5EEAD4") // Mint Green (Selected)
+            else -> Color.WHITE // Available
         }
 
-        // vẽ hình tròn ghế
-        val radius = width.coerceAtMost(height) / 2f - 4
-        canvas.drawCircle(width/2f, height/2f, radius, paint)
+        seatDrawable?.let {
+            val padding = (width * 0.1f).toInt()
+            it.setTint(tintColor)
+            it.setBounds(padding, padding, width - padding, height - padding)
+            it.draw(canvas)
+        }
 
-        // vẽ seatId
-        canvas.drawText(seatId, width/2f, height/2f + textPaint.textSize/3, textPaint)
+        // Draw seat ID (e.g., A1, B2)
+        if (seatId.isNotEmpty() && seatId != "_") {
+            canvas.drawText(seatId, width / 2f, height / 2f + textPaint.textSize / 3f, textPaint)
+        }
     }
 }

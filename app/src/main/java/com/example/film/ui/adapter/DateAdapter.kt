@@ -34,10 +34,10 @@ class DateAdapter(
 
             binding.txtDate.text = date
             if (position == selectedPosition) {
-                binding.txtDate.setBackgroundColor(Color.parseColor("#FF9800"))
+                binding.cardContainer.setCardBackgroundColor(Color.parseColor("#3B82F6"))
                 binding.txtDate.setTextColor(Color.WHITE)
             } else {
-                binding.txtDate.setBackgroundColor(Color.TRANSPARENT)
+                binding.cardContainer.setCardBackgroundColor(Color.parseColor("#334155"))
                 binding.txtDate.setTextColor(Color.WHITE)
             }
             binding.root.setOnClickListener {

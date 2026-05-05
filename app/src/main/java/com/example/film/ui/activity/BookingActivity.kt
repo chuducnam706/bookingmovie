@@ -6,6 +6,7 @@ import com.example.film.databinding.ActivityBookingBinding
 import com.example.film.ui.adapter.CinemaAdapter
 import com.example.film.ui.adapter.DateAdapter
 import com.example.film.ui.adapter.TimeAdapter
+import com.bumptech.glide.Glide
 import com.example.moneymanagement.presentation.view.base.BaseActivity
 
 class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBinding::inflate){
@@ -41,6 +42,19 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
 
         val movieName = intent.getStringExtra("movie_name") ?: ""
         val moviePoster = intent.getStringExtra("movie_poster") ?: ""
+
+        binding.tvMovieTitle.text = movieName
+        Glide.with(this)
+            .load("https://image.tmdb.org/t/p/w780$moviePoster")
+            .centerCrop()
+            .into(binding.imgPoster)
+
+        Glide.with(this)
+            .load("https://image.tmdb.org/t/p/w780$moviePoster")
+            .centerCrop()
+            .into(binding.imgBackdrop)
+
+        binding.btnBack.setOnClickListener { finish() }
 
         // 3. Initialize Time
         adapterTime = TimeAdapter(

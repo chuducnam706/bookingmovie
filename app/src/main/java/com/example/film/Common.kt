@@ -3,6 +3,7 @@ package com.example.film
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import com.example.film.model.FoodItem
 
 
 object Common {
@@ -29,23 +30,21 @@ object Common {
 
     }
 
-    /**
-     * Extract just the dd/MM part from a display date like "Th 2 - 23/03"
-     * This ensures the key is consistent across all devices.
-     */
+
     fun extractDateKey(displayDate: String): String {
-        // displayDate format: "Th 2 - 23/03" or "T.2 - 23/03" etc.
-        // We just take the part after " - "
         return displayDate.substringAfter(" - ", displayDate).trim()
     }
 
     fun initCinema() : List<String> {
         return listOf(
-            "CGV Landmark 81",
-            "Lotte Cinema Gò Vấp",
-            "Galaxy Nguyễn Du",
-            "BHD Star Thảo Điền",
-            "Beta Cinema Quang Trung"
+            "CGV Vincom Royal City",
+            "CGV Aeon Mall Long Biên",
+            "Lotte Cinema Ba Đình",
+            "Beta Cinema Mỹ Đình",
+            "BHD Star Phạm Ngọc Thạch",
+            "Galaxy Cinema Nguyễn Du - HN",
+            "Mega GS Cao Thắng - HN",
+            "Cinestar Quốc Gia - HN"
         )
     }
 
@@ -73,6 +72,21 @@ object Common {
         }
 
         return result
+    }
+
+    fun initFood(): List<FoodItem> {
+        return listOf(
+            FoodItem(1, "Bắp rang bơ (Lớn)", 55000, "https://images.unsplash.com/photo-1585735024697-15e4f4e1c489?w=400"),
+            FoodItem(2, "Bắp rang bơ (Vừa)", 45000, "https://images.unsplash.com/photo-1578849278619-e73505e9610f?w=400"),
+            FoodItem(3, "Coca Cola", 30000, "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400"),
+            FoodItem(4, "Pepsi", 30000, "https://images.unsplash.com/photo-1553456558-aff63285bdd1?w=400"),
+            FoodItem(5, "Nước suối", 15000, "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400"),
+            FoodItem(6, "Trà sữa", 40000, "https://images.unsplash.com/photo-1558857563-b371033873b8?w=400"),
+            FoodItem(7, "Combo Bắp + Nước", 65000, "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400"),
+            FoodItem(8, "Nachos phô mai", 50000, "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=400"),
+            FoodItem(9, "Hotdog", 45000, "https://images.unsplash.com/photo-1612392062126-21009b3e8567?w=400"),
+            FoodItem(10, "Xúc xích nướng", 35000, "https://images.unsplash.com/photo-1587536849024-daaa4a417b16?w=400")
+        )
     }
 
 }

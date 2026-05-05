@@ -8,18 +8,18 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.film.RetrofitClient
 import com.example.film.database.FilmDTO
+import androidx.lifecycle.ViewModelProvider
 import com.example.film.databinding.ActivityDetailBinding
+import com.example.film.viewmodel.FilmViewModel
 import com.example.moneymanagement.presentation.view.base.BaseActivity
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class DetailActivity : BaseActivity<ActivityDetailBinding>(ActivityDetailBinding::inflate) {
 
     private val API_KEY = "5a6545a40e13bd2dc08a0792ba8a1ba9"
     private var data: FilmDTO? = null
+    private lateinit var viewModel: FilmViewModel
 
 
     override fun initializeComponent() {
@@ -33,8 +33,22 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>(ActivityDetailBinding
             // Initial UI update with available data
             updateBasicUI(movie)
 
-            // Fetch extra details
-            fetchMovieDetails(movie.id)
+            // Setup ViewModel
+            viewModel = ViewModelProvider(this)[FilmViewModel::class.java]
+            observeViewModel()
+            viewModel.loadMovieDetails(movie.id)
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.movieDetails.observe(this) { fullDetails ->
+            bindFullDetails(fullDetails)
+        }
+
+        viewModel.error.observe(this) { error ->
+            error?.let {
+                android.widget.Toast.makeText(this, it, android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -63,18 +77,6 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>(ActivityDetailBinding
         binding.tvReleaseDate.text = movie.release_date ?: "N/A"
     }
 
-    private fun fetchMovieDetails(movieId: Int) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val fullDetails = RetrofitClient.retrofit.getMovieDetails(movieId, API_KEY)
-                withContext(Dispatchers.Main) {
-                    bindFullDetails(fullDetails)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
     private fun bindFullDetails(movie: FilmDTO) {
         binding.tvDuration.text = "${movie.runtime ?: 0} mins"

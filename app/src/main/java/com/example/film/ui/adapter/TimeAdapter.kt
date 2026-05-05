@@ -40,10 +40,10 @@ class TimeAdapter(
 
             binding.txtDate.text = date
             if (position == selectedPosition) {
-                binding.txtDate.setBackgroundColor(android.graphics.Color.parseColor("#FF9800"))
+                binding.cardContainer.setCardBackgroundColor(android.graphics.Color.parseColor("#3B82F6"))
                 binding.txtDate.setTextColor(android.graphics.Color.WHITE)
             } else {
-                binding.txtDate.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                binding.cardContainer.setCardBackgroundColor(android.graphics.Color.parseColor("#334155"))
                 binding.txtDate.setTextColor(android.graphics.Color.WHITE)
             }
             binding.root.setOnClickListener {
