@@ -1,5 +1,7 @@
 package com.example.film.ui.activity
 
+import android.Manifest
+import android.os.Build
 import androidx.viewpager2.widget.ViewPager2
 import com.example.film.R
 import com.example.film.databinding.ActivityMainBinding
@@ -35,5 +37,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
                 binding.nav.menu.getItem(position).isChecked = true
             }
         })
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                100
+            )
+        }
+
     }
 }

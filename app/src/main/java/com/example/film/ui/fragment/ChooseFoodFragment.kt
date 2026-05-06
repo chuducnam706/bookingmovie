@@ -1,7 +1,7 @@
 package com.example.film.ui.fragment
 
 import android.widget.Toast
-import com.example.film.Common
+import com.example.film.utils.Common
 import com.example.film.databinding.FragmentChooseFoodBinding
 import com.example.film.model.FoodItem
 import com.example.film.ui.adapter.CinemaAdapter

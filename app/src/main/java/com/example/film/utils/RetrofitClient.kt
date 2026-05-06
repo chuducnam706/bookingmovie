@@ -1,4 +1,4 @@
-package com.example.film
+package com.example.film.utils
 
 import com.example.film.database.MyService
 import okhttp3.OkHttpClient

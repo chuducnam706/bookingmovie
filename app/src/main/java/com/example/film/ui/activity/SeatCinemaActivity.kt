@@ -1,8 +1,8 @@
 package com.example.film.ui.activity
 
 import android.widget.Toast
-import com.example.film.Common
-import com.example.film.RemoteConfigHelper
+import com.example.film.utils.Common
+import com.example.film.utils.RemoteConfigHelper
 import com.example.film.databinding.ActivitySeatCinemaBinding
 import com.example.film.model.BookingModel
 import com.example.film.ui.adapter.SeatAdapter

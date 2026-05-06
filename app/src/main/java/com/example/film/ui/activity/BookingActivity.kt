@@ -1,7 +1,7 @@
 package com.example.film.ui.activity
 
 import android.content.Intent
-import com.example.film.Common
+import com.example.film.utils.Common
 import com.example.film.databinding.ActivityBookingBinding
 import com.example.film.ui.adapter.CinemaAdapter
 import com.example.film.ui.adapter.DateAdapter

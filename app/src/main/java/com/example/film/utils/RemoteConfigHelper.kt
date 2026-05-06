@@ -1,4 +1,4 @@
-package com.example.film
+package com.example.film.utils
 
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings

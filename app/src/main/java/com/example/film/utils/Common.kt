@@ -1,4 +1,4 @@
-package com.example.film
+package com.example.film.utils
 
 import java.text.SimpleDateFormat
 import java.util.Calendar

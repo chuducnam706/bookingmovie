@@ -2,8 +2,7 @@ package com.example.film.ui.fragment
 
 import android.content.Intent
 import android.view.View
-import com.example.film.RemoteConfigHelper
-import com.example.film.RetrofitClient
+import com.example.film.utils.RemoteConfigHelper
 import com.example.film.database.FilmDTO
 import com.example.film.databinding.FragmentChooseFilmBinding
 import com.example.film.ui.activity.BookingActivity
@@ -15,7 +14,6 @@ import com.google.android.material.tabs.TabLayout
 import androidx.lifecycle.ViewModelProvider
 import com.example.film.viewmodel.FilmViewModel
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
 
 class ChooseFilmFragment :
     BaseFragment<FragmentChooseFilmBinding>(FragmentChooseFilmBinding::inflate) {

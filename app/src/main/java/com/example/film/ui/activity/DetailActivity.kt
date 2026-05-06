@@ -2,18 +2,14 @@ package com.example.film.ui.activity
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.example.film.RetrofitClient
 import com.example.film.database.FilmDTO
 import androidx.lifecycle.ViewModelProvider
 import com.example.film.databinding.ActivityDetailBinding
 import com.example.film.viewmodel.FilmViewModel
 import com.example.moneymanagement.presentation.view.base.BaseActivity
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
 
 class DetailActivity : BaseActivity<ActivityDetailBinding>(ActivityDetailBinding::inflate) {
 
