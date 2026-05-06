@@ -7,7 +7,7 @@ import com.example.film.ui.fragment.ChooseCinemaFragment
 import com.example.film.ui.fragment.ChooseFilmFragment
 import com.example.film.ui.fragment.ChooseFoodFragment
 import com.example.film.ui.fragment.MyTicketFragment
-import com.example.film.ui.fragment.SaleFragment
+import com.example.film.ui.fragment.SettingFragment
 
 class MainAdapter(fragmentActivity : FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
     override fun createFragment(p0: Int): Fragment {
@@ -15,8 +15,8 @@ class MainAdapter(fragmentActivity : FragmentActivity) : FragmentStateAdapter(fr
             0 -> ChooseFilmFragment()
             1 -> ChooseCinemaFragment()
             2 -> ChooseFoodFragment()
-            3 -> SaleFragment()
-            4 -> MyTicketFragment()
+            3 -> MyTicketFragment()
+            4 -> SettingFragment()
             else -> ChooseFilmFragment()
         }
     }

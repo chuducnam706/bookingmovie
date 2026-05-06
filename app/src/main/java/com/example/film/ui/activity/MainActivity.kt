@@ -25,8 +25,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
                 R.id.menu_film -> binding.viewPager2.currentItem = 0
                 R.id.menu_cinema -> binding.viewPager2.currentItem = 1
                 R.id.menu_food -> binding.viewPager2.currentItem = 2
-                R.id.menu_sale -> binding.viewPager2.currentItem = 3
-                R.id.menu_ticket -> binding.viewPager2.currentItem = 4
+                R.id.menu_ticket -> binding.viewPager2.currentItem = 3
+                R.id.menu_setting -> binding.viewPager2.currentItem = 4
             }
             true
         }

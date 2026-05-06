@@ -28,17 +28,32 @@
     </LinearLayout>
 
     <!-- Cinema selector -->
-    <TextView
-        android:id="@+id/tvCinemaLabel"
+    <LinearLayout
+        android:id="@+id/layoutCinemaLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:text="Chọn rạp"
-        android:textColor="#94A3B8"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/layout_header" />
+        app:layout_constraintTop_toBottomOf="@id/layout_header">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_location"
+            app:tint="#3B82F6" />
+
+        <TextView
+            android:id="@+id/tvCinemaLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Chọn rạp"
+            android:textColor="#94A3B8"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lstCinema"
@@ -47,23 +62,38 @@
         android:layout_marginTop="8dp"
         android:clipToPadding="false"
         android:orientation="horizontal"
-        android:paddingHorizontal="12dp"
+        android:paddingHorizontal="16dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/tvCinemaLabel"
+        app:layout_constraintTop_toBottomOf="@id/layoutCinemaLabel"
         tools:listitem="@layout/item_cinema" />
 
     <!-- Food list -->
-    <TextView
-        android:id="@+id/tvFoodLabel"
+    <LinearLayout
+        android:id="@+id/layoutFoodLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="16dp"
-        android:text="Thực đơn"
-        android:textColor="#94A3B8"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/lstCinema" />
+        app:layout_constraintTop_toBottomOf="@id/lstCinema">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_food"
+            app:tint="#3B82F6" />
+
+        <TextView
+            android:id="@+id/tvFoodLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Thực đơn"
+            android:textColor="#94A3B8"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lstFood"
@@ -75,7 +105,7 @@
         android:paddingBottom="16dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/layout_footer"
-        app:layout_constraintTop_toBottomOf="@id/tvFoodLabel"
+        app:layout_constraintTop_toBottomOf="@id/layoutFoodLabel"
         tools:listitem="@layout/item_food" />
 
     <!-- Footer -->

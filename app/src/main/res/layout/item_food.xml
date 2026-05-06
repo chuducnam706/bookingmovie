@@ -68,7 +68,6 @@
             android:src="@android:drawable/ic_input_add"
             app:tint="@color/white" />
 
-        <!-- Quantity controls (visible when quantity > 0) -->
         <LinearLayout
             android:id="@+id/layoutQuantity"
             android:layout_width="wrap_content"
@@ -82,9 +81,9 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="@drawable/bg_circle"
-                android:backgroundTint="#334155"
+                android:backgroundTint="#3B82F6"
                 android:padding="8dp"
-                android:src="@android:drawable/btn_minus"
+                android:src="@drawable/btn_minus"
                 app:tint="@color/white" />
 
             <TextView

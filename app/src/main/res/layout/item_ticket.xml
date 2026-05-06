@@ -55,13 +55,12 @@
                 android:layout_marginTop="@dimen/_4sdp"
                 android:text="Cinema Name"
                 android:textColor="#3B82F6"
-                android:textSize="13sp"
-                android:drawablePadding="4dp" />
+                android:textSize="13sp" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginVertical="@dimen/_6sdp"
+                android:layout_marginVertical="@dimen/_8sdp"
                 android:background="#334155" />
 
             <LinearLayout
@@ -70,15 +69,14 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="DATE"
+                        android:text="NGÀY"
                         android:textColor="#94A3B8"
                         android:textSize="9sp" />
 
@@ -92,15 +90,15 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/_24sdp"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TIME"
+                        android:text="GIỜ"
                         android:textColor="#94A3B8"
                         android:textSize="9sp" />
 
@@ -112,48 +110,18 @@
                         android:textColor="@color/white"
                         android:textSize="13sp" />
                 </LinearLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_4sdp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="SEATS"
-                        android:textColor="#94A3B8"
-                        android:textSize="9sp" />
-
-                    <TextView
-                        android:id="@+id/txtSeats"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="A1, A2"
-                        android:textColor="@color/white"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/txtTotalPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="140.000đ"
-                    android:textColor="#3B82F6"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
             </LinearLayout>
 
         </LinearLayout>
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/baseline_arrow_back_ios_24"
+            android:rotation="180"
+            app:tint="#475569" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

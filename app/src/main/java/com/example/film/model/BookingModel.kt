@@ -3,6 +3,8 @@ package com.example.film.model
 import com.google.firebase.firestore.IgnoreExtraProperties
 
 
+import java.io.Serializable
+
 @IgnoreExtraProperties
 data class BookingModel(
     var bookingId: String = "",
@@ -16,5 +18,5 @@ data class BookingModel(
     var seats: List<String> = listOf(),
     var totalPrice: Long = 0,
     var timestamp: Long = System.currentTimeMillis()
-)
+) : Serializable
 

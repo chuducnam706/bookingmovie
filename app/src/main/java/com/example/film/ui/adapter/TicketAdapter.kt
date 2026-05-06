@@ -29,8 +29,6 @@ class TicketAdapter(
             binding.txtCinemaName.text = booking.cinemaName
             binding.txtDate.text = booking.date
             binding.txtTime.text = booking.time
-            binding.txtSeats.text = booking.seats.joinToString(", ")
-            binding.txtTotalPrice.text = "${booking.totalPrice}đ"
 
             // Load movie poster
             if (booking.moviePoster.isNotEmpty()) {
@@ -38,6 +36,14 @@ class TicketAdapter(
                     .load("https://image.tmdb.org/t/p/w300${booking.moviePoster}")
                     .centerCrop()
                     .into(binding.imgPoster)
+            }
+
+            // Click to open Detail screen
+            binding.root.setOnClickListener {
+                val context = binding.root.context
+                val intent = android.content.Intent(context, com.example.film.ui.activity.DetailTicketActivity::class.java)
+                intent.putExtra("BOOKING_DATA", booking)
+                context.startActivity(intent)
             }
         }
     }

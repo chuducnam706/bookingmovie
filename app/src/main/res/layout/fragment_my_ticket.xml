@@ -5,16 +5,33 @@
     android:layout_height="match_parent"
     android:background="#0F172A">
 
-    <TextView
-        android:id="@+id/txtTitle"
+    <LinearLayout
+        android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:padding="@dimen/_16sdp"
-        android:text="My Tickets"
-        android:textColor="@color/white"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/txtTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="My Tickets"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnScan"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_scan"
+            android:padding="4dp"
+            app:tint="@color/white" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lstTicket"
@@ -22,6 +39,6 @@
         android:layout_height="0dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtTitle" />
+        app:layout_constraintTop_toBottomOf="@id/layoutHeader" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

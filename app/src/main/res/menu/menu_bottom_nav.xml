@@ -13,11 +13,11 @@
         android:icon="@drawable/ic_food"
         android:title="@string/nav_food" />
     <item
-        android:id="@+id/menu_sale"
-        android:icon="@drawable/ic_sale"
-        android:title="@string/nav_sale" />
-    <item
         android:id="@+id/menu_ticket"
         android:icon="@drawable/ic_ticket"
         android:title="@string/nav_ticket" />
+    <item
+        android:id="@+id/menu_setting"
+        android:icon="@drawable/ic_sale"
+        android:title="@string/nav_setting" />
 </menu>

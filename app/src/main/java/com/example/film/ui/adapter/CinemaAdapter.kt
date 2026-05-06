@@ -2,7 +2,9 @@ package com.example.film.ui.adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.content.res.ColorStateList
 import androidx.recyclerview.widget.RecyclerView
 import com.example.film.databinding.ItemCinemaBinding
 
@@ -31,11 +33,15 @@ class CinemaAdapter(
         fun bindView(name: String, position: Int) {
             binding.txtCinema.text = name
             if (position == selectedPosition) {
-                binding.cardContainer.setCardBackgroundColor(Color.parseColor("#3B82F6"))
-                binding.txtCinema.setTextColor(Color.WHITE)
+                binding.cardContainer.setCardBackgroundColor(Color.parseColor("#1E293B"))
+                binding.cardContainer.strokeColor = Color.parseColor("#3B82F6")
+                binding.imgSelected.visibility = View.VISIBLE
+                binding.imgCinema.imageTintList = ColorStateList.valueOf(Color.parseColor("#3B82F6"))
             } else {
-                binding.cardContainer.setCardBackgroundColor(Color.parseColor("#334155"))
-                binding.txtCinema.setTextColor(Color.WHITE)
+                binding.cardContainer.setCardBackgroundColor(Color.parseColor("#0F172A"))
+                binding.cardContainer.strokeColor = Color.parseColor("#1E293B")
+                binding.imgSelected.visibility = View.GONE
+                binding.imgCinema.imageTintList = ColorStateList.valueOf(Color.parseColor("#475569"))
             }
             binding.root.setOnClickListener {
                 val oldPosition = selectedPosition

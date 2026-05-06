@@ -19,6 +19,68 @@ class MyTicketFragment : BaseFragment<FragmentMyTicketBinding>(FragmentMyTicketB
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fetchBookings()
+        
+        binding.btnScan.setOnClickListener {
+            startScanner()
+        }
+    }
+
+    private fun startScanner() {
+        if (androidx.core.content.ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) 
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 1001)
+            return
+        }
+        
+        val integrator = com.google.zxing.integration.android.IntentIntegrator.forSupportFragment(this)
+        integrator.setDesiredBarcodeFormats(com.google.zxing.integration.android.IntentIntegrator.QR_CODE)
+        integrator.setPrompt("Quét mã QR vé")
+        integrator.setCameraId(0)
+        integrator.setBeepEnabled(true)
+        integrator.setBarcodeImageEnabled(true)
+        integrator.setOrientationLocked(false)
+        integrator.initiateScan()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            startScanner()
+        } else {
+            android.widget.Toast.makeText(requireContext(), "Cần quyền camera để quét mã", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        val result = com.google.zxing.integration.android.IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+        if (result != null) {
+            if (result.contents != null) {
+                fetchAndShowTicket(result.contents)
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    private fun fetchAndShowTicket(bookingId: String) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("bookings")
+            .document(bookingId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val booking = document.toObject(BookingModel::class.java)
+                    if (booking != null) {
+                        val intent = android.content.Intent(requireContext(), com.example.film.ui.activity.DetailTicketActivity::class.java)
+                        intent.putExtra("BOOKING_DATA", booking)
+                        startActivity(intent)
+                    }
+                } else {
+                    android.widget.Toast.makeText(requireContext(), "Không tìm thấy vé: $bookingId", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                android.widget.Toast.makeText(requireContext(), "Lỗi: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun fetchBookings() {

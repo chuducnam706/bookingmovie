@@ -34,9 +34,24 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
 
         // 2. Initialize Cinema
         val cinemas = Common.initCinema()
-        selectedCinema = cinemas[0]
+        selectedCinema = cinemas[0] // Select first cinema by default
+        
+        // Show time section by default
+        binding.lblTime.visibility = android.view.View.VISIBLE
+        binding.lstTime.visibility = android.view.View.VISIBLE
+
         adapterCinema = CinemaAdapter(cinemas.toMutableList()) { cinema ->
             selectedCinema = cinema
+            
+            // Refresh times based on current date
+            val datePosition = dates.indexOf(selectedDate)
+            adapterTime.updateData(Common.generateShowTimes(datePosition == 0, 0, 24, 3))
+            
+            // Smooth scroll to time section when changing cinema
+            binding.root.post {
+                val scrollY = binding.lblTime.top
+                binding.nestedScrollView.smoothScrollTo(0, scrollY)
+            }
         }
         binding.lstCinema.adapter = adapterCinema
 
@@ -57,9 +72,8 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
         binding.btnBack.setOnClickListener { finish() }
 
         // 3. Initialize Time
-        adapterTime = TimeAdapter(
-            Common.generateShowTimes(true, 0, 24, 3).toMutableList()
-        ) { time ->
+        val initialTimes = Common.generateShowTimes(true, 0, 24, 3)
+        adapterTime = TimeAdapter(initialTimes.toMutableList()) { time ->
             val intent = Intent(this, SeatCinemaActivity::class.java)
             intent.putExtra("movie_name", movieName)
             intent.putExtra("movie_poster", moviePoster)

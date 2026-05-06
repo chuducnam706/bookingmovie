@@ -23,6 +23,19 @@ class ChooseFilmFragment :
     private lateinit var bannerAdapter: BannerAdapter
     private lateinit var viewModel: FilmViewModel
 
+    private val sliderHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val sliderRunnable = object : Runnable {
+        override fun run() {
+            val count = bannerAdapter.itemCount
+            if (count > 0) {
+                var currentItem = binding.viewPagerBanner.currentItem
+                currentItem = (currentItem + 1) % count
+                binding.viewPagerBanner.setCurrentItem(currentItem, true)
+                sliderHandler.postDelayed(this, 3000) // Scroll every 3 seconds
+            }
+        }
+    }
+
     override fun initializeComponent() {
         super.initializeComponent()
 
@@ -58,6 +71,16 @@ class ChooseFilmFragment :
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        sliderHandler.postDelayed(sliderRunnable, 3000)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sliderHandler.removeCallbacks(sliderRunnable)
+    }
+
     private fun observeViewModel() {
         viewModel.movies.observe(viewLifecycleOwner) { movies ->
             adapter.setData(movies)
@@ -84,6 +107,16 @@ class ChooseFilmFragment :
         bannerAdapter = BannerAdapter(emptyList()) { moveToDetail(it) }
         binding.viewPagerBanner.adapter = bannerAdapter
         binding.dotsIndicator.attachTo(binding.viewPagerBanner)
+        
+        // Optional: register callback to reset timer on manual swipe
+        binding.viewPagerBanner.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                sliderHandler.removeCallbacks(sliderRunnable)
+                sliderHandler.postDelayed(sliderRunnable, 3000)
+            }
+        })
+        
         viewModel.loadHotMovies()
     }
 
