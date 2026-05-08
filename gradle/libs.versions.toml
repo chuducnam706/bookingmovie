@@ -12,6 +12,7 @@ constraintlayout = "2.2.1"
 firebaseAuthKtx = "23.2.0"
 firebaseFirestoreKtx = "25.1.2"
 lifecycleKtx = "2.8.7"
+activityKtx = "1.13.0"
 
 
 [libraries]
@@ -27,6 +28,7 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 
 
 [plugins]

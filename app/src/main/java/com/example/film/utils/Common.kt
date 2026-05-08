@@ -48,6 +48,19 @@ object Common {
         )
     }
 
+    fun initCinemaWithAddress(): List<Pair<String, String>> {
+        return listOf(
+            "CGV Vincom Royal City" to "72A Nguyễn Trãi, Thanh Xuân, Hà Nội",
+            "CGV Aeon Mall Long Biên" to "27 Cổ Linh, Long Biên, Hà Nội",
+            "Lotte Cinema Ba Đình" to "54 Liễu Giai, Ba Đình, Hà Nội",
+            "Beta Cinema Mỹ Đình" to "Tòa Golden Palace, Mễ Trì, Nam Từ Liêm, Hà Nội",
+            "BHD Star Phạm Ngọc Thạch" to "Vincom Center, 2 Phạm Ngọc Thạch, Đống Đa, Hà Nội",
+            "Galaxy Cinema Nguyễn Du - HN" to "116 Nguyễn Du, Hai Bà Trưng, Hà Nội",
+            "Mega GS Cao Thắng - HN" to "19 Cao Thắng, Hai Bà Trưng, Hà Nội",
+            "Cinestar Quốc Gia - HN" to "87 Láng Hạ, Đống Đa, Hà Nội"
+        )
+    }
+
 
 
     fun generateShowTimes(isToday: Boolean, startHour: Int, endHour: Int, stepHour: Int): List<String> {

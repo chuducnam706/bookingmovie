@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -17,11 +21,18 @@
         android:theme="@style/Theme.Film"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.activity.admin.AdminActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Film" />
+        <activity
+            android:name=".ui.activity.vnpay.PaymentActivity"
+            android:exported="false" />
+        <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:replace="android:screenOrientation" />
         <activity
-            android:name=".ui.activity.LoginActivity"
+            android:name=".ui.activity.login.LoginActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -31,29 +42,37 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.RegisterActivity"
+            android:name=".ui.activity.register.RegisterActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.SeatCinemaActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.activity.DetailActivity"
+            android:name=".ui.activity.chooseseate.SeatCinemaActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.BookingActivity"
+            android:name=".ui.activity.detail.DetailActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name=".ui.activity.bookticket.BookingActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.DetailTicketActivity"
+            android:name=".ui.activity.main.MainActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-
+        <activity
+            android:name=".ui.activity.detail.DetailTicketActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.detail.DetailFoodOrderActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.cinemadetai.CinemaDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".utils.MyService"
@@ -66,6 +85,5 @@
 
 
     </application>
-
 
 </manifest>

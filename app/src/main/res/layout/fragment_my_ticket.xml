@@ -5,12 +5,13 @@
     android:layout_height="match_parent"
     android:background="#0F172A">
 
+    <!-- Header: tiêu đề + nút scan QR -->
     <LinearLayout
         android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:padding="@dimen/_16sdp"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -28,17 +29,32 @@
             android:id="@+id/btnScan"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ic_scan"
             android:padding="4dp"
+            android:src="@drawable/ic_scan"
             app:tint="@color/white" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/lstTicket"
+    <!-- TabLayout: switch giữa Vé phim / Đồ ăn -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1E293B"
+        app:layout_constraintTop_toBottomOf="@id/layoutHeader"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="#F59E0B"
+        app:tabIndicatorHeight="3dp"
+        app:tabMode="fixed"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabSelectedTextColor="#F59E0B"
+        app:tabTextColor="#94A3B8" />
+
+    <!-- ViewPager2: chứa 2 fragment tab -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layoutHeader" />
+        app:layout_constraintTop_toBottomOf="@id/tabLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

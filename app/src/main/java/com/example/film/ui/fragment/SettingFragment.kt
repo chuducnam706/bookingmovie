@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.Toast
 import com.example.film.databinding.FragmentSettingBinding
 import com.example.film.model.UserModel
-import com.example.film.ui.activity.LoginActivity
+import com.example.film.ui.activity.login.LoginActivity
 import com.example.moneymanagement.presentation.view.base.BaseFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

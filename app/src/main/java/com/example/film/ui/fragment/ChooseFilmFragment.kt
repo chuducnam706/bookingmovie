@@ -5,8 +5,8 @@ import android.view.View
 import com.example.film.utils.RemoteConfigHelper
 import com.example.film.database.FilmDTO
 import com.example.film.databinding.FragmentChooseFilmBinding
-import com.example.film.ui.activity.BookingActivity
-import com.example.film.ui.activity.DetailActivity
+import com.example.film.ui.activity.bookticket.BookingActivity
+import com.example.film.ui.activity.detail.DetailActivity
 import com.example.film.ui.adapter.BannerAdapter
 import com.example.film.ui.adapter.ChooseFilmAdapter
 import com.example.moneymanagement.presentation.view.base.BaseFragment

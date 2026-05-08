@@ -1,12 +1,14 @@
-package com.example.film.ui.activity
+package com.example.film.ui.activity.bookticket
 
 import android.content.Intent
-import com.example.film.utils.Common
+import android.view.View
+import com.bumptech.glide.Glide
 import com.example.film.databinding.ActivityBookingBinding
+import com.example.film.ui.activity.chooseseate.SeatCinemaActivity
 import com.example.film.ui.adapter.CinemaAdapter
 import com.example.film.ui.adapter.DateAdapter
 import com.example.film.ui.adapter.TimeAdapter
-import com.bumptech.glide.Glide
+import com.example.film.utils.Common
 import com.example.moneymanagement.presentation.view.base.BaseActivity
 
 class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBinding::inflate){
@@ -24,7 +26,7 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
         // 1. Initialize Date
         val dates = Common.initDate()
         selectedDate = dates[0]
-        adapterDate = DateAdapter(dates.toMutableList()){ date ->
+        adapterDate = DateAdapter(dates.toMutableList()) { date ->
             selectedDate = date
             val position = dates.indexOf(date)
             val isToday = position == 0
@@ -35,18 +37,18 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
         // 2. Initialize Cinema
         val cinemas = Common.initCinema()
         selectedCinema = cinemas[0] // Select first cinema by default
-        
+
         // Show time section by default
-        binding.lblTime.visibility = android.view.View.VISIBLE
-        binding.lstTime.visibility = android.view.View.VISIBLE
+        binding.lblTime.visibility = View.VISIBLE
+        binding.lstTime.visibility = View.VISIBLE
 
         adapterCinema = CinemaAdapter(cinemas.toMutableList()) { cinema ->
             selectedCinema = cinema
-            
+
             // Refresh times based on current date
             val datePosition = dates.indexOf(selectedDate)
             adapterTime.updateData(Common.generateShowTimes(datePosition == 0, 0, 24, 3))
-            
+
             // Smooth scroll to time section when changing cinema
             binding.root.post {
                 val scrollY = binding.lblTime.top
@@ -91,6 +93,3 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
 
 
 }
-
-
-

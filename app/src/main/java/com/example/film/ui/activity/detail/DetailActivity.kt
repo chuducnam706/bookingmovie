@@ -1,12 +1,15 @@
-package com.example.film.ui.activity
+package com.example.film.ui.activity.detail
 
 import android.content.Intent
 import android.net.Uri
 import android.view.View
-import com.bumptech.glide.Glide
-import com.example.film.database.FilmDTO
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
+import com.example.film.R
+import com.example.film.database.FilmDTO
 import com.example.film.databinding.ActivityDetailBinding
+import com.example.film.ui.activity.bookticket.BookingActivity
 import com.example.film.viewmodel.FilmViewModel
 import com.example.moneymanagement.presentation.view.base.BaseActivity
 import com.google.gson.Gson
@@ -43,7 +46,7 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>(ActivityDetailBinding
 
         viewModel.error.observe(this) { error ->
             error?.let {
-                android.widget.Toast.makeText(this, it, android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -81,10 +84,10 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>(ActivityDetailBinding
         binding.tvGenres.text = genres
 
         val director = movie.credits?.crew?.find { it.job == "Director" }?.name ?: "N/A"
-        binding.tvDirector.text = getString(com.example.film.R.string.label_director) + director
+        binding.tvDirector.text = getString(R.string.label_director) + director
 
         val country = movie.production_countries?.joinToString(", ") { it.name } ?: "N/A"
-        binding.tvCountry.text = getString(com.example.film.R.string.label_country) + country
+        binding.tvCountry.text = getString(R.string.label_country) + country
 
         val cast = movie.credits?.cast?.take(5)?.joinToString(", ") { it.name } ?: "N/A"
         binding.tvCast.text = "Cast: $cast"
@@ -94,7 +97,10 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>(ActivityDetailBinding
         if (trailer != null) {
             binding.btnTrailer.visibility = View.VISIBLE
             binding.btnTrailer.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=${trailer.key}"))
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://www.youtube.com/watch?v=${trailer.key}")
+                )
                 startActivity(intent)
             }
         } else {

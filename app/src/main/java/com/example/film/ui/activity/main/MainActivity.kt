@@ -1,4 +1,4 @@
-package com.example.film.ui.activity
+package com.example.film.ui.activity.main
 
 import android.Manifest
 import android.os.Build

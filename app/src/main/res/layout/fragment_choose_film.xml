@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0F172A"
-    tools:context=".ui.activity.MainActivity">
+    tools:context=".ui.activity.main.MainActivity">
 
     <!-- Category Tabs -->
     <com.google.android.material.tabs.TabLayout

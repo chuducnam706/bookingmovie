@@ -2,6 +2,7 @@ package com.example.film.repository
 
 import com.example.film.utils.RetrofitClient
 import com.example.film.database.FilmDTO
+import com.example.film.model.VnPayModel
 
 class FilmRepository {
     private val API_KEY = "5a6545a40e13bd2dc08a0792ba8a1ba9"
@@ -21,4 +22,6 @@ class FilmRepository {
     suspend fun getMovieDetails(movieId: Int): FilmDTO {
         return RetrofitClient.retrofit.getMovieDetails(movieId, API_KEY)
     }
+
+
 }
