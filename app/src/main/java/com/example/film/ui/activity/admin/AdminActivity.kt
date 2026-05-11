@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.film.base.BaseActivity
 import com.example.film.databinding.ActivityAdminBinding
 import com.example.film.model.BookingModel
 import com.example.film.ui.activity.login.LoginActivity
@@ -18,9 +19,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
-class AdminActivity : AppCompatActivity() {
+class AdminActivity : BaseActivity<ActivityAdminBinding>(ActivityAdminBinding::inflate) {
 
-    private lateinit var binding: ActivityAdminBinding
     private val db = FirebaseFirestore.getInstance()
     private var allBookings: List<BookingModel> = emptyList()
     private lateinit var pagerAdapter: AdminPagerAdapter
@@ -32,10 +32,9 @@ class AdminActivity : AppCompatActivity() {
     private var selectedYear = "Tất cả"
     private var selectedMonth = "Tất cả"
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAdminBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+
+    override fun initializeComponent() {
+        super.initializeComponent()
 
         setupToolbar()
         setupSpinners()

@@ -78,8 +78,8 @@ class ChooseFoodFragment : BaseFragment<FragmentChooseFoodBinding>(FragmentChoos
             }
 
             val totalPrice = foodList.sumOf { it.price * it.quantity }
-            val uniqueOrderId = "FOOD_${System.currentTimeMillis()}"
-            val orderDescription = "Thanh toan do an tai $selectedCinema"
+            val uniqueOrderId = System.currentTimeMillis().toString()
+            val orderDescription = Common.removeAccents("Thanh toan do an tai $selectedCinema")
 
             binding.btnCheckout.isEnabled = false
             viewModel.createPayment(totalPrice.toLong(), orderDescription, uniqueOrderId)

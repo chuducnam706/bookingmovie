@@ -73,9 +73,13 @@
             android:name=".ui.activity.cinemadetai.CinemaDetailActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.search.SearchActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <service
-            android:name=".utils.MyService"
+            android:name=".utils.MessService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

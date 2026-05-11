@@ -8,11 +8,33 @@
     android:background="#0F172A"
     tools:context=".ui.activity.main.MainActivity">
 
+    <!-- Search Input Dummy (Acts as button) -->
+    <TextView
+        android:id="@+id/edtSearch"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="8dp"
+        android:background="@drawable/bg_conner_16"
+        android:backgroundTint="#1E293B"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"
+        android:hint="Tìm kiếm phim..."
+        android:padding="12dp"
+        android:textColor="@color/white"
+        android:textColorHint="#94A3B8"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <!-- Category Tabs -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:background="#1E293B"
         app:tabGravity="fill"
         app:tabMode="fixed"
@@ -21,7 +43,7 @@
         app:tabSelectedTextColor="#3B82F6"
         app:tabTextColor="#94A3B8"
         app:tabTextAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edtSearch"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

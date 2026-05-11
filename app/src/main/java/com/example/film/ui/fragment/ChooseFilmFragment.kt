@@ -2,7 +2,6 @@ package com.example.film.ui.fragment
 
 import android.content.Intent
 import android.view.View
-import com.example.film.utils.RemoteConfigHelper
 import com.example.film.database.FilmDTO
 import com.example.film.databinding.FragmentChooseFilmBinding
 import com.example.film.ui.activity.bookticket.BookingActivity
@@ -13,6 +12,8 @@ import com.example.moneymanagement.presentation.view.base.BaseFragment
 import com.google.android.material.tabs.TabLayout
 import androidx.lifecycle.ViewModelProvider
 import com.example.film.viewmodel.FilmViewModel
+import com.example.film.ui.activity.search.SearchActivity
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
 
 class ChooseFilmFragment :
@@ -43,9 +44,14 @@ class ChooseFilmFragment :
             onClickItem = { moveToDetail(it) },
             onClickBooking = { moveToBooking(it) })
 
-        RemoteConfigHelper.fetchTicketPrice {
-            adapter.setTicketPrice(it)
-        }
+        val db = FirebaseFirestore.getInstance()
+        db.collection("settings").document("config")
+            .addSnapshotListener { snapshot, _ ->
+                if (snapshot != null && snapshot.exists() && isAdded) {
+                    val ticketPrice = snapshot.getLong("ticketPrice") ?: 70000L
+                    adapter.setTicketPrice(ticketPrice)
+                }
+            }
 
         binding.lstFilm.adapter = adapter
 
@@ -69,6 +75,12 @@ class ChooseFilmFragment :
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
+
+        // Launch SearchActivity when clicking on the dummy search bar
+        binding.edtSearch.setOnClickListener {
+            val intent = Intent(requireContext(), SearchActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onResume() {

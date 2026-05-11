@@ -15,9 +15,7 @@ class CustomScreenView @JvmOverloads constructor(
         style = Paint.Style.STROKE
         strokeWidth = 12f
         strokeCap = Paint.Cap.ROUND
-        // Neon pink color
         color = Color.parseColor("#FF0099")
-        // Add shadow for neon effect
         setShadowLayer(20f, 0f, 0f, Color.parseColor("#FF0099"))
     }
 

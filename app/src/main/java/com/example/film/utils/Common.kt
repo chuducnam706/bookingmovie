@@ -8,6 +8,8 @@ import com.example.film.model.FoodItem
 
 object Common {
 
+    val APIKEY : String = ""
+
     fun initDate() : List<String>{
 
         val dateList = mutableListOf<String>()
@@ -100,6 +102,17 @@ object Common {
             FoodItem(9, "Hotdog", 45000, "https://images.unsplash.com/photo-1612392062126-21009b3e8567?w=400"),
             FoodItem(10, "Xúc xích nướng", 35000, "https://images.unsplash.com/photo-1587536849024-daaa4a417b16?w=400")
         )
+    }
+
+    fun removeAccents(s: String): String {
+        val temp = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
+        val pattern = java.util.regex.Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+        return pattern.matcher(temp).replaceAll("")
+            .replace('đ', 'd')
+            .replace('Đ', 'D')
+            .replace(Regex("[^a-zA-Z0-9]"), " ")
+            .trim()
+            .replace(Regex("\\s+"), "_")
     }
 
 }

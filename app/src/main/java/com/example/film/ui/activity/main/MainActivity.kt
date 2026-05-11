@@ -6,7 +6,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.film.R
 import com.example.film.databinding.ActivityMainBinding
 import com.example.film.ui.adapter.MainAdapter
-import com.example.moneymanagement.presentation.view.base.BaseActivity
+import com.example.film.base.BaseActivity
 
 class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::inflate) {
 

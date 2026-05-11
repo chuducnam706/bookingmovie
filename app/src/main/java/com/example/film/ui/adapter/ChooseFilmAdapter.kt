@@ -11,8 +11,7 @@ class ChooseFilmAdapter(
     private var data: List<FilmDTO>,
     private val onClickItem : (FilmDTO) -> Unit,
     private val onClickBooking : (FilmDTO) -> Unit
-) :
-    RecyclerView.Adapter<ChooseFilmAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<ChooseFilmAdapter.ViewHolder>() {
 
     private var ticketPrice: Long = 0
 
@@ -55,7 +54,7 @@ class ChooseFilmAdapter(
                 .centerCrop()
                 .into(binding.BannerFilm)
             binding.countVote.text = "${item.vote_count} vote"
-            binding.priceTicket.text = "$ticketPrice vnđ"
+            binding.priceTicket.text = "${String.format("%,d", ticketPrice)}đ"
 
             binding.root.setOnClickListener { onClickItem(item) }
             binding.btnBooking.setOnClickListener { onClickBooking(item) }

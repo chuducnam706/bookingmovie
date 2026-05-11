@@ -10,10 +10,9 @@ import com.example.film.databinding.ActivitySeatCinemaBinding
 import com.example.film.model.BookingModel
 import com.example.film.ui.adapter.SeatAdapter
 import com.example.film.utils.Common
-import com.example.film.utils.RemoteConfigHelper
 import com.example.film.ui.activity.vnpay.PaymentActivity
 import com.example.film.viewmodel.PaymentViewModel
-import com.example.moneymanagement.presentation.view.base.BaseActivity
+import com.example.film.base.BaseActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -105,7 +104,7 @@ class SeatCinemaActivity :
 
             val totalAmount = ticketPrice * selectedSeats.size
             val uniqueOrderId = System.currentTimeMillis().toString()
-            val orderDescription = "Thanh toan ve phim $movieName"
+            val orderDescription = Common.removeAccents("Thanh toan ve phim $movieName")
 
             viewModel.createPayment(totalAmount, orderDescription, uniqueOrderId)
         }

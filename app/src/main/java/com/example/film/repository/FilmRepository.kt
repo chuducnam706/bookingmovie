@@ -23,5 +23,9 @@ class FilmRepository {
         return RetrofitClient.retrofit.getMovieDetails(movieId, API_KEY)
     }
 
+    suspend fun searchMovies(query: String, page: Int = 1): List<FilmDTO> {
+        return RetrofitClient.retrofit.searchMovies(API_KEY, query, page).results
+    }
+
 
 }

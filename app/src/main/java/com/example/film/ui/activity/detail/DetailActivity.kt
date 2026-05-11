@@ -11,7 +11,7 @@ import com.example.film.database.FilmDTO
 import com.example.film.databinding.ActivityDetailBinding
 import com.example.film.ui.activity.bookticket.BookingActivity
 import com.example.film.viewmodel.FilmViewModel
-import com.example.moneymanagement.presentation.view.base.BaseActivity
+import com.example.film.base.BaseActivity
 import com.google.gson.Gson
 
 class DetailActivity : BaseActivity<ActivityDetailBinding>(ActivityDetailBinding::inflate) {

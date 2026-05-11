@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+
 }
 
 android {
@@ -62,12 +64,16 @@ dependencies {
     implementation("com.intuit.ssp:ssp-android:1.1.1")
 
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
+
+
     implementation("com.google.firebase:firebase-messaging")
 
-    // Google Play Services - kiểm tra GMS availability, tránh SecurityException
     implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     implementation("com.github.AnyChart:AnyChart-Android:1.1.5")
+
     implementation("com.google.zxing:core:3.4.1")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 

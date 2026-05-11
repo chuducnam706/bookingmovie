@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 class FilmViewModel : ViewModel() {
     private val repository = FilmRepository()
 
+    private var currentCategory: Int = 0
+
     private val _movies = MutableLiveData<List<FilmDTO>>()
     val movies: LiveData<List<FilmDTO>> = _movies
 
@@ -27,6 +29,7 @@ class FilmViewModel : ViewModel() {
     val movieDetails: LiveData<FilmDTO> = _movieDetails
 
     fun loadMovies(category: Int) {
+        currentCategory = category
         _isLoading.value = true
         _error.value = null
         viewModelScope.launch {
@@ -53,6 +56,25 @@ class FilmViewModel : ViewModel() {
                 _hotMovies.value = result.take(5)
             } catch (e: Exception) {
                 _error.value = e.message ?: "Error loading hot movies"
+            }
+        }
+    }
+
+    fun searchMovies(query: String) {
+        if (query.isEmpty()) {
+            loadMovies(currentCategory)
+            return
+        }
+        _isLoading.value = true
+        _error.value = null
+        viewModelScope.launch {
+            try {
+                val result = repository.searchMovies(query, 1)
+                _movies.value = result
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Search failed"
+            } finally {
+                _isLoading.value = false
             }
         }
     }

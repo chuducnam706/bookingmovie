@@ -7,7 +7,7 @@ import com.example.film.databinding.ActivityDetailFoodOrderBinding
 import com.example.film.model.FoodOrder
 import com.example.film.ui.adapter.FoodOrderItemAdapter
 import com.example.film.utils.QRCodeHelper
-import com.example.moneymanagement.presentation.view.base.BaseActivity
+import com.example.film.base.BaseActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

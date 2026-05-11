@@ -9,7 +9,7 @@ import com.example.film.ui.adapter.CinemaAdapter
 import com.example.film.ui.adapter.DateAdapter
 import com.example.film.ui.adapter.TimeAdapter
 import com.example.film.utils.Common
-import com.example.moneymanagement.presentation.view.base.BaseActivity
+import com.example.film.base.BaseActivity
 
 class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBinding::inflate){
 
