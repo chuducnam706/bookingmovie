@@ -12,4 +12,14 @@
         android:padding="@dimen/_8sdp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
+    <TextView
+        android:id="@+id/txtEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Chưa có vé phim nào"
+        android:textColor="#94A3B8"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
 </FrameLayout>

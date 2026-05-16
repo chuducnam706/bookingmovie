@@ -10,7 +10,7 @@ object Common {
 
     val APIKEY : String = ""
 
-    fun initDate() : List<String>{
+    fun initDate(daysAhead: Int = 7) : List<String>{
 
         val dateList = mutableListOf<String>()
 
@@ -19,7 +19,7 @@ object Common {
 
         val calendar = Calendar.getInstance()
 
-        for (i in 0..7) {
+        repeat(daysAhead + 1) {
             val dayOfWeek = dayFormat.format(calendar.time)
             val date = dateFormat.format(calendar.time)
 
@@ -34,7 +34,75 @@ object Common {
 
 
     fun extractDateKey(displayDate: String): String {
+        return normalizeDateKey(displayDate)
+    }
+
+    fun legacyDateKey(displayDate: String): String {
         return displayDate.substringAfter(" - ", displayDate).trim()
+    }
+
+    fun dateKeyCandidates(displayDate: String): List<String> {
+        return listOf(extractDateKey(displayDate), legacyDateKey(displayDate))
+            .filter { it.isNotBlank() }
+            .distinct()
+    }
+
+    fun isSameDateKey(storedDateKey: String, selectedDisplayDate: String): Boolean {
+        if (storedDateKey.isBlank() || selectedDisplayDate.isBlank()) return false
+        return dateKeyCandidates(selectedDisplayDate).contains(storedDateKey) ||
+                normalizeDateKey(storedDateKey) == extractDateKey(selectedDisplayDate)
+    }
+
+    fun normalizeDateKey(dateValue: String): String {
+        val value = legacyDateKey(dateValue)
+        if (Regex("""\d{4}-\d{2}-\d{2}""").matches(value)) return value
+
+        val match = Regex("""(\d{1,2})/(\d{1,2})""").find(value) ?: return value
+        val day = match.groupValues[1].toIntOrNull() ?: return value
+        val month = match.groupValues[2].toIntOrNull() ?: return value
+
+        val today = Calendar.getInstance()
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.YEAR, today.get(Calendar.YEAR))
+            set(Calendar.MONTH, month - 1)
+            set(Calendar.DAY_OF_MONTH, day)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val startOfToday = (today.clone() as Calendar).apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        if (calendar.before(startOfToday)) {
+            calendar.add(Calendar.YEAR, 1)
+        }
+
+        return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(calendar.time)
+    }
+
+    fun buildShowKey(movieName: String, cinemaName: String, displayDate: String, time: String): String {
+        val rawKey = "${movieName}_${cinemaName}_${legacyDateKey(displayDate)}_${time}"
+        return rawKey.replace(Regex("[^a-zA-Z0-9_-]"), "_")
+    }
+
+    fun initEveningShowTimes(): List<String> {
+        return listOf(
+            "06:00 - 08:00",
+            "08:00 - 10:00",
+            "10:00 - 12:00",
+            "12:00 - 14:00",
+            "14:00 - 16:00",
+            "16:00 - 18:00",
+            "18:00 - 20:00",
+            "20:00 - 22:00",
+            "22:00 - 00:00",
+            "00:00 - 02:00",
+            "02:00 - 04:00"
+        )
     }
 
     fun initCinema() : List<String> {

@@ -1,6 +1,8 @@
 package com.example.film.ui.fragment
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import com.example.film.databinding.FragmentTicketListBinding
@@ -22,6 +24,8 @@ class TicketListFragment : BaseFragment<FragmentTicketListBinding>(FragmentTicke
 
     private lateinit var adapter: TicketAdapter
     private var bookingListener: ListenerRegistration? = null
+    private val expirationHandler = Handler(Looper.getMainLooper())
+    private var expirationRunnable: Runnable? = null
 
     private var isCleaningExpired = false
 
@@ -62,65 +66,84 @@ class TicketListFragment : BaseFragment<FragmentTicketListBinding>(FragmentTicke
                 }
                 if (result == null) return@addSnapshotListener
 
-                val now = System.currentTimeMillis()
-
-                val validTickets = mutableListOf<BookingModel>()
-                val expiredIds = mutableListOf<String>()
+                val allTickets = mutableListOf<BookingModel>()
 
                 for (doc in result.documents) {
                     val booking = doc.toObject(BookingModel::class.java) ?: continue
-                    val expirationMillis = getExpirationMillis(booking.date, booking.time)
-
-                    // Nếu quá hạn (expirationMillis < now) thì xóa
-                    if (expirationMillis != null && expirationMillis < now) {
-                        expiredIds.add(doc.id)
-                    } else {
-                        validTickets.add(booking)
-                    }
+                    if (booking.bookingId.isBlank()) booking.bookingId = doc.id
+                    allTickets.add(booking)
                 }
 
-                if (expiredIds.isNotEmpty() && !isCleaningExpired) {
-                    isCleaningExpired = true
-                    deleteExpiredTickets(db, expiredIds)
-                }
-
-                val sorted = validTickets.sortedByDescending { it.timestamp }
+                val activeTickets = cleanExpiredTicketsIfNeeded(db, allTickets)
+                val sorted = activeTickets.sortedByDescending { it.timestamp }
                 adapter.submitList(sorted)
+                scheduleNextExpiration(activeTickets)
 
                 binding.lstTicket.visibility =
                     if (sorted.isEmpty()) View.GONE else View.VISIBLE
+                
+                binding.txtEmpty.visibility =
+                    if (sorted.isEmpty()) View.VISIBLE else View.GONE
+                
+                android.util.Log.d("TicketListFragment", "Loaded ${sorted.size} tickets")
             }
     }
 
     private fun stopListeningBookings() {
         bookingListener?.remove()
         bookingListener = null
+        expirationRunnable?.let { expirationHandler.removeCallbacks(it) }
+        expirationRunnable = null
     }
 
     private fun getExpirationMillis(dateStr: String, timeStr: String): Long? {
-        // dateStr: "Thứ sáu - 08/05" -> lấy "08/05"
         val datePart = dateStr.substringAfter(" - ", dateStr).trim()
-        
-        // timeStr: "10:00 - 13:00" -> lấy giờ kết thúc "13:00"
-        // Nếu chỉ có "10:00" thì lấy chính nó
-        val timePart = timeStr.substringAfter(" - ", timeStr).trim()
 
         return try {
-            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-            val parsed = sdf.parse("$datePart/$currentYear $timePart") ?: return null
+            val dateParts = datePart.split("/")
+            if (dateParts.size != 2) return null
 
-            val parsedCal = Calendar.getInstance().apply { time = parsed }
-            
-            // Xử lý khi qua năm mới (ví dụ vé tháng 1 nhưng đang là tháng 12)
-            val sixMonthsLater = Calendar.getInstance().apply { add(Calendar.MONTH, 6) }
-            if (parsedCal.after(sixMonthsLater)) {
-                parsedCal.add(Calendar.YEAR, -1)
+            val day = dateParts[0].toIntOrNull() ?: return null
+            val month = dateParts[1].toIntOrNull() ?: return null
+            val startPart = timeStr.substringBefore(" - ", timeStr).trim()
+            val endPart = timeStr.substringAfter(" - ", startPart).trim()
+            val startMinutes = parseTimeMinutes(startPart) ?: return null
+            val endMinutes = parseTimeMinutes(endPart) ?: return null
+
+            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+            val startCal = Calendar.getInstance().apply {
+                set(Calendar.YEAR, currentYear)
+                set(Calendar.MONTH, month - 1)
+                set(Calendar.DAY_OF_MONTH, day)
+                set(Calendar.HOUR_OF_DAY, startMinutes / 60)
+                set(Calendar.MINUTE, startMinutes % 60)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
             }
 
-            parsedCal.add(Calendar.MINUTE, EXPIRE_DELAY_MINUTES)
+            val endCal = Calendar.getInstance().apply {
+                set(Calendar.YEAR, currentYear)
+                set(Calendar.MONTH, month - 1)
+                set(Calendar.DAY_OF_MONTH, day)
+                set(Calendar.HOUR_OF_DAY, endMinutes / 60)
+                set(Calendar.MINUTE, endMinutes % 60)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+
+            val sixMonthsLater = Calendar.getInstance().apply { add(Calendar.MONTH, 6) }
+            if (startCal.after(sixMonthsLater)) {
+                startCal.add(Calendar.YEAR, -1)
+                endCal.add(Calendar.YEAR, -1)
+            }
+
+            if (endMinutes <= startMinutes) {
+                endCal.add(Calendar.DAY_OF_MONTH, 1)
+            }
+
+            endCal.add(Calendar.MINUTE, EXPIRE_DELAY_MINUTES)
             
-            val result = parsedCal.timeInMillis
+            val result = endCal.timeInMillis
            Log.d("TicketListFragment", "Ticket: $dateStr $timeStr -> Expire at: ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(result)}")
             
             result
@@ -129,19 +152,98 @@ class TicketListFragment : BaseFragment<FragmentTicketListBinding>(FragmentTicke
         }
     }
 
-    private fun deleteExpiredTickets(db: FirebaseFirestore, ids: List<String>) {
-        val batch = db.batch()
-        ids.forEach { id ->
-            batch.delete(db.collection("bookings").document(id))
+    private fun cleanExpiredTicketsIfNeeded(
+        db: FirebaseFirestore,
+        tickets: List<BookingModel>
+    ): List<BookingModel> {
+        val now = System.currentTimeMillis()
+        val expiredTickets = tickets.filter { booking ->
+            val expirationMillis = getExpirationMillis(booking.date, booking.time)
+            expirationMillis != null && expirationMillis <= now
         }
-        batch.commit()
-            .addOnSuccessListener {
-                Log.d("TicketListFragment", "Deleted ${ids.size} expired tickets")
 
+        if (expiredTickets.isNotEmpty() && !isCleaningExpired) {
+            deleteExpiredTickets(db, expiredTickets)
+        }
+
+        val expiredIds = expiredTickets.map { it.bookingId }.toSet()
+        return tickets.filterNot { it.bookingId in expiredIds }
+    }
+
+    private fun scheduleNextExpiration(tickets: List<BookingModel>) {
+        expirationRunnable?.let { expirationHandler.removeCallbacks(it) }
+        expirationRunnable = null
+
+        val now = System.currentTimeMillis()
+        val nextExpirationMillis = tickets
+            .mapNotNull { getExpirationMillis(it.date, it.time) }
+            .filter { it > now }
+            .minOrNull()
+            ?: return
+
+        val runnable = Runnable {
+            if (isAdded && view != null) {
+                startListeningBookings()
+            }
+        }
+
+        expirationRunnable = runnable
+        expirationHandler.postDelayed(runnable, nextExpirationMillis - now)
+    }
+
+    private fun deleteExpiredTickets(db: FirebaseFirestore, tickets: List<BookingModel>) {
+        isCleaningExpired = true
+
+        db.runTransaction { transaction ->
+            val showtimeRefs = tickets
+                .filter { it.showKey.isNotBlank() && it.seats.isNotEmpty() }
+                .groupBy { it.showKey }
+                .mapValues { db.collection("showtimes").document(it.key) }
+
+            val showtimeSnapshots = showtimeRefs.mapValues { transaction.get(it.value) }
+
+            tickets.forEach { booking ->
+                if (booking.bookingId.isNotBlank()) {
+                    transaction.delete(db.collection("bookings").document(booking.bookingId))
+                }
+            }
+
+            showtimeSnapshots.forEach { (showKey, snapshot) ->
+                if (!snapshot.exists()) return@forEach
+
+                val seatsToRemove = tickets
+                    .filter { it.showKey == showKey }
+                    .flatMap { it.seats }
+                    .toSet()
+
+                if (seatsToRemove.isEmpty()) return@forEach
+
+                @Suppress("UNCHECKED_CAST")
+                val currentSeats = snapshot.get("bookedSeats") as? List<String> ?: emptyList()
+                val remainingSeats = currentSeats.filterNot { it in seatsToRemove }
+                transaction.update(showtimeRefs.getValue(showKey), "bookedSeats", remainingSeats)
+            }
+
+            null
+        }
+            .addOnSuccessListener {
+                Log.d("TicketListFragment", "Deleted ${tickets.size} expired tickets")
+                isCleaningExpired = false
             }
             .addOnFailureListener { e ->
                 Log.e("TicketListFragment", "Delete expired failed", e)
                 isCleaningExpired = false
             }
+    }
+
+    private fun parseTimeMinutes(time: String): Int? {
+        val parts = time.trim().split(":")
+        if (parts.size != 2) return null
+
+        val hour = parts[0].toIntOrNull() ?: return null
+        val minute = parts[1].toIntOrNull() ?: return null
+        if (hour !in 0..23 || minute !in 0..59) return null
+
+        return hour * 60 + minute
     }
 }

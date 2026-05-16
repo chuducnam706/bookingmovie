@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.film.database.FilmDTO
 import com.example.film.databinding.ItemCinemaMovieBinding
+import com.example.film.model.ShowtimeModel
 import com.example.film.utils.Common
 import com.google.android.material.chip.Chip
 
@@ -28,13 +29,19 @@ import com.google.android.material.chip.Chip
 class CinemaMovieAdapter(
     private var movies: List<FilmDTO>,
     private var selectedDate: String,
+    private var showtimes: List<ShowtimeModel> = emptyList(),
     private var timeFilter: String = "Tất cả",
     private val onShowtimeClick: (film: FilmDTO, time: String) -> Unit
 ) : RecyclerView.Adapter<CinemaMovieAdapter.ViewHolder>() {
 
-    fun updateData(newMovies: List<FilmDTO>, date: String) {
+    fun updateData(
+        newMovies: List<FilmDTO>,
+        date: String,
+        newShowtimes: List<ShowtimeModel> = showtimes
+    ) {
         movies = newMovies
         selectedDate = date
+        showtimes = newShowtimes
         notifyDataSetChanged()
     }
 
@@ -90,21 +97,19 @@ class CinemaMovieAdapter(
                 Glide.with(binding.root.context).clear(binding.imgPoster)
             }
 
-            // ──────────────────────────────────────────────────────────
-            // Generate suất chiếu + lọc theo timeFilter
-            // ──────────────────────────────────────────────────────────
             binding.chipGroupShowtimes.removeAllViews()
 
-            val dates = Common.initDate()
-            val datePosition = dates.indexOf(selectedDate)
-            val isToday = datePosition == 0 || datePosition == -1
-
-            // Tạo suất chiếu dựa trên film.id để mỗi phim có giờ khác nhau
-            val startHour = (film.id % 4) + 9  // 9h - 12h
-            val endHour = 24
-            val step = 2
-
-            val allTimes = Common.generateShowTimes(isToday, startHour, endHour, step)
+            val movieTitle = film.original_title.orEmpty()
+            val allTimes = showtimes
+                .filter {
+                    it.active &&
+                            Common.isSameDateKey(it.dateKey, selectedDate) &&
+                            ((film.id != 0 && it.movieId == film.id) || it.movieName == movieTitle)
+                }
+                .map { it.time }
+                .filter { it.isNotBlank() }
+                .distinct()
+                .sortedWith(compareBy { parseStartHour(it) ?: Int.MAX_VALUE })
 
             // Lọc suất chiếu theo khung giờ đã chọn
             val filteredTimes = filterShowtimes(allTimes, timeFilter)

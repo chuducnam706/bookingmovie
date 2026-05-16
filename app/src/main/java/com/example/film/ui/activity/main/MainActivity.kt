@@ -19,7 +19,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         binding.viewPager2.adapter = adapter
         binding.viewPager2.isUserInputEnabled = false
 
-        // Link BottomNavigationView with ViewPager2
         binding.nav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.menu_film -> binding.viewPager2.currentItem = 0

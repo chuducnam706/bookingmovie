@@ -1,4 +1,4 @@
-package com.example.film.ui.activity.admin
+package com.example.film.ui.activity.admin.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,44 +6,41 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.film.databinding.FragmentAdminManagementBinding
+import com.example.film.databinding.FragmentAdminFoodManagementBinding
 import com.example.film.model.FoodItem
 import com.example.film.ui.adapter.FoodManagementAdapter
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
-class AdminManagementFragment : Fragment() {
+class FoodManagementFragment : Fragment() {
 
-    private var _binding: FragmentAdminManagementBinding? = null
+    private var _binding: FragmentAdminFoodManagementBinding? = null
     private val binding get() = _binding!!
     private val db = FirebaseFirestore.getInstance()
-    private lateinit var adapter: FoodManagementAdapter
-    private var currentTicketPrice: Long = 70000L
+    private lateinit var foodAdapter: FoodManagementAdapter
+    private var foodListener: ListenerRegistration? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAdminManagementBinding.inflate(inflater, container, false)
+        _binding = FragmentAdminFoodManagementBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerView()
-        listenToTicketPrice()
+        setupFoodRecyclerView()
         listenToFoods()
-
-        binding.btnIncreaseTicket.setOnClickListener { updateTicketPrice(currentTicketPrice + 5000) }
-        binding.btnDecreaseTicket.setOnClickListener { updateTicketPrice(currentTicketPrice - 5000) }
-
         binding.btnAddFood.setOnClickListener { addNewFood() }
     }
 
-    private fun setupRecyclerView() {
-        adapter = FoodManagementAdapter(
+    private fun setupFoodRecyclerView() {
+        foodAdapter = FoodManagementAdapter(
             foods = emptyList(),
-            onUpdatePrice = { food, newPrice -> 
+            onUpdatePrice = { food, newPrice ->
                 db.collection("foods").document(food.id.toString())
                     .update("price", newPrice)
             },
@@ -51,30 +48,11 @@ class AdminManagementFragment : Fragment() {
                 db.collection("foods").document(food.id.toString()).delete()
             }
         )
-        binding.rvFoodList.adapter = adapter
-    }
-
-    private fun listenToTicketPrice() {
-        db.collection("settings").document("config")
-            .addSnapshotListener { snapshot, _ ->
-                if (snapshot != null && snapshot.exists()) {
-                    currentTicketPrice = snapshot.getLong("ticketPrice") ?: 70000L
-                    binding.txtCurrentTicketPrice.text = String.format("Giá hiện tại: %,dđ", currentTicketPrice)
-                }
-            }
-    }
-
-    private fun updateTicketPrice(newPrice: Long) {
-        if (newPrice < 0) return
-        db.collection("settings").document("config")
-            .set(mapOf("ticketPrice" to newPrice))
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Lỗi cập nhật giá vé", Toast.LENGTH_SHORT).show()
-            }
+        binding.rvFoodList.adapter = foodAdapter
     }
 
     private fun listenToFoods() {
-        db.collection("foods")
+        foodListener = db.collection("foods")
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
                     val foodList = snapshot.documents.mapNotNull { doc ->
@@ -84,7 +62,7 @@ class AdminManagementFragment : Fragment() {
                         val imageUrl = doc.getString("imageUrl") ?: ""
                         FoodItem(id, name, price, imageUrl)
                     }
-                    adapter.updateData(foodList)
+                    foodAdapter.updateData(foodList)
                 }
             }
     }
@@ -100,8 +78,7 @@ class AdminManagementFragment : Fragment() {
         }
 
         val price = priceStr.toLongOrNull() ?: 0L
-        val id = System.currentTimeMillis().toInt() // Simple ID generation
-
+        val id = System.currentTimeMillis().toInt()
         val food = hashMapOf(
             "name" to name,
             "price" to price,
@@ -120,6 +97,8 @@ class AdminManagementFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        foodListener?.remove()
+        foodListener = null
         _binding = null
     }
 }

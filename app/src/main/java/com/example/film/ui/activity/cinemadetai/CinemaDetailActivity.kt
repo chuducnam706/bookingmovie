@@ -6,13 +6,17 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.film.database.FilmDTO
 import com.example.film.databinding.ActivityCinemaDetailBinding
+import com.example.film.model.ShowtimeModel
 import com.example.film.ui.activity.chooseseate.SeatCinemaActivity
 import com.example.film.ui.adapter.CinemaMovieAdapter
 import com.example.film.ui.adapter.DateAdapter
 import com.example.film.ui.adapter.TimeAdapter
 import com.example.film.utils.Common
 import com.example.film.viewmodel.FilmViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class CinemaDetailActivity : AppCompatActivity() {
 
@@ -26,6 +30,10 @@ class CinemaDetailActivity : AppCompatActivity() {
     private var cinemaAddress = ""
     private var selectedDate = ""
     private var selectedTimeFilter = "Tất cả"
+    private val db = FirebaseFirestore.getInstance()
+    private var showtimeListener: ListenerRegistration? = null
+    private var allMovies: List<FilmDTO> = emptyList()
+    private var availableShowtimes: List<ShowtimeModel> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +53,7 @@ class CinemaDetailActivity : AppCompatActivity() {
         setupTimeFilter()
         setupMovieList()
         observeViewModel()
+        listenToShowtimes()
 
         // Load phim đang chiếu
         binding.progressBar.visibility = View.VISIBLE
@@ -57,7 +66,7 @@ class CinemaDetailActivity : AppCompatActivity() {
 
         dateAdapter = DateAdapter(dates.toMutableList()) { date ->
             selectedDate = date
-            movieAdapter.updateDate(date)
+            updateMovieList()
         }
         binding.lstDate.adapter = dateAdapter
     }
@@ -94,13 +103,8 @@ class CinemaDetailActivity : AppCompatActivity() {
     private fun observeViewModel() {
         viewModel.movies.observe(this) { movies ->
             binding.progressBar.visibility = View.GONE
-
-            if (movies.isNullOrEmpty()) {
-                binding.lstMovies.visibility = View.GONE
-            } else {
-                binding.lstMovies.visibility = View.VISIBLE
-                movieAdapter.updateData(movies, selectedDate)
-            }
+            allMovies = movies.orEmpty()
+            updateMovieList()
         }
 
         viewModel.error.observe(this) { error ->
@@ -109,5 +113,55 @@ class CinemaDetailActivity : AppCompatActivity() {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun listenToShowtimes() {
+        showtimeListener = db.collection("showtimes")
+            .whereEqualTo("cinemaName", cinemaName)
+            .addSnapshotListener { snapshot, e ->
+                binding.progressBar.visibility = View.GONE
+
+                if (e != null) {
+                    Toast.makeText(this, "Lỗi tải suất chiếu: ${e.message}", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                availableShowtimes = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(ShowtimeModel::class.java)?.apply {
+                        id = doc.id
+                        if (showKey.isBlank()) showKey = doc.id
+                    }
+                }.orEmpty().filter { it.active }
+
+                updateMovieList()
+            }
+    }
+
+    private fun updateMovieList() {
+        val showtimesForDate = availableShowtimes.filter {
+            Common.isSameDateKey(it.dateKey, selectedDate)
+        }
+
+        val moviesById = allMovies.associateBy { it.id }
+        val displayMovies = showtimesForDate
+            .distinctBy { if (it.movieId != 0) "id_${it.movieId}" else "name_${it.movieName}" }
+            .map { showtime ->
+                moviesById[showtime.movieId] ?: FilmDTO(
+                    id = showtime.movieId,
+                    poster_path = showtime.moviePoster,
+                    overview = null,
+                    vote_count = 0,
+                    original_title = showtime.movieName
+                )
+            }
+
+        binding.lstMovies.visibility = if (displayMovies.isEmpty()) View.GONE else View.VISIBLE
+        movieAdapter.updateData(displayMovies, selectedDate, showtimesForDate)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        showtimeListener?.remove()
+        showtimeListener = null
     }
 }

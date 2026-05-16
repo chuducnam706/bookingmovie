@@ -16,6 +16,7 @@ import com.example.film.base.BaseActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.SetOptions
 
 class SeatCinemaActivity :
     BaseActivity<ActivitySeatCinemaBinding>(ActivitySeatCinemaBinding::inflate) {
@@ -57,10 +58,7 @@ class SeatCinemaActivity :
         val movieName = intent.getStringExtra("movie_name") ?: ""
         val moviePoster = intent.getStringExtra("movie_poster") ?: ""
 
-        val dateKey = Common.extractDateKey(date)
-
-        val rawKey = "${movieName}_${cinemaName}_${dateKey}_${time}"
-        showKey = rawKey.replace(Regex("[^a-zA-Z0-9_-]"), "_")
+        showKey = Common.buildShowKey(movieName, cinemaName, date, time)
 
         db.collection("settings").document("config")
             .addSnapshotListener { snapshot, _ ->
@@ -243,10 +241,15 @@ class SeatCinemaActivity :
                 "bookedSeats" to updatedSeats,
                 "showKey" to showKey,
                 "movieName" to movieName,
-                "cinemaName" to cinemaName
+                "moviePoster" to moviePoster,
+                "cinemaName" to cinemaName,
+                "date" to date,
+                "dateKey" to Common.extractDateKey(date),
+                "time" to time,
+                "active" to true
             )
 
-            transaction.set(showtimeRef, showtimeData)
+            transaction.set(showtimeRef, showtimeData, SetOptions.merge())
 
             val bookingId = db.collection("bookings").document().id
             val bookingRef = db.collection("bookings").document(bookingId)

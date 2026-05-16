@@ -28,6 +28,13 @@ class CinemaAdapter(
 
     override fun getItemCount(): Int = data.size
 
+    fun updateData(newData: List<String>, selectedItem: String? = null) {
+        data.clear()
+        data.addAll(newData)
+        selectedPosition = selectedItem?.let { data.indexOf(it) }?.takeIf { it >= 0 } ?: 0
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder(val binding: ItemCinemaBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bindView(name: String, position: Int) {
