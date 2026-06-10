@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.film.database.FilmDTO
 import com.example.film.databinding.FragmentAdminShowtimeManagementBinding
+import com.example.film.model.ShowtimeDraft
 import com.example.film.model.ShowtimeModel
 import com.example.film.repository.FilmRepository
 import com.example.film.ui.adapter.ShowtimeManagementAdapter
@@ -52,6 +53,7 @@ class ShowtimeManagementFragment : Fragment() {
     private val selectedShowtimeTimes = linkedSetOf<String>()
     private var selectedFilterDate = ""
     private var selectedFilterCinema = ALL_CINEMAS_FILTER
+    private var isSavingShowtime = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -254,6 +256,8 @@ class ShowtimeManagementFragment : Fragment() {
     }
 
     private fun saveShowtime() {
+        if (isSavingShowtime) return
+
         val selectedMovie = movieOptions.getOrNull(binding.spinnerShowtimeMovie.selectedItemPosition)
         if (selectedMovie == null) {
             showToast("Chưa tải được danh sách phim")
@@ -274,6 +278,7 @@ class ShowtimeManagementFragment : Fragment() {
         if (currentEditing != null) {
             val cinemaName = cinemas.first()
             val date = dates.first()
+            setShowtimeSaving(true, 1)
             saveSingleShowtime(selectedMovie, movieName, cinemaName, date, times.first(), currentEditing)
         } else {
             saveMultipleShowtimes(selectedMovie, movieName, cinemas, dates, times)
@@ -302,6 +307,7 @@ class ShowtimeManagementFragment : Fragment() {
         db.collection("showtimes").document(showKey)
             .set(showtimeData, SetOptions.merge())
             .addOnSuccessListener {
+                setShowtimeSaving(false)
                 if (oldShowKey.isNotBlank() && oldShowKey != showKey) {
                     db.collection("showtimes").document(oldShowKey).delete()
                 }
@@ -310,6 +316,7 @@ class ShowtimeManagementFragment : Fragment() {
                 if (_binding != null && isAdded) clearShowtimeForm(keepCurrentSelection = true)
             }
             .addOnFailureListener {
+                setShowtimeSaving(false)
                 showToast("Lỗi lưu suất chiếu")
             }
     }
@@ -333,6 +340,7 @@ class ShowtimeManagementFragment : Fragment() {
             return
         }
 
+        setShowtimeSaving(true, drafts.size)
         commitShowtimeBatches(
             selectedMovie = selectedMovie,
             movieName = movieName,
@@ -370,6 +378,7 @@ class ShowtimeManagementFragment : Fragment() {
             .addOnSuccessListener {
                 val nextIndex = startIndex + batchDrafts.size
                 if (nextIndex < drafts.size) {
+                    updateShowtimeSavingProgress(totalCount = drafts.size, savedCount = nextIndex)
                     commitShowtimeBatches(
                         selectedMovie = selectedMovie,
                         movieName = movieName,
@@ -383,8 +392,10 @@ class ShowtimeManagementFragment : Fragment() {
                 val message = if (drafts.size == 1) "Đã thêm suất chiếu" else "Đã thêm ${drafts.size} suất chiếu"
                 showToast(message)
                 if (_binding != null && isAdded) clearShowtimeForm(keepCurrentSelection = true)
+                setShowtimeSaving(false)
             }
             .addOnFailureListener {
+                setShowtimeSaving(false)
                 showToast("Lỗi lưu suất chiếu")
             }
     }
@@ -534,6 +545,7 @@ class ShowtimeManagementFragment : Fragment() {
                 gravity = Gravity.CENTER
                 isCheckable = true
                 isChecked = checked
+                isEnabled = !isSavingShowtime
                 chipBackgroundColor = ColorStateList.valueOf(
                     Color.parseColor(if (checked) "#3B82F6" else "#334155")
                 )
@@ -594,11 +606,38 @@ class ShowtimeManagementFragment : Fragment() {
     private fun updateShowtimeActionLabel() {
         val total = selectedShowtimeCinemas.size * selectedShowtimeDates.size * selectedShowtimeTimes.size
         binding.btnSaveShowtime.text = when {
+            isSavingShowtime -> "ĐANG LƯU..."
             editingShowtime != null -> "CẬP NHẬT SUẤT CHIẾU"
             total == 0 -> "CHỌN SUẤT CHIẾU"
             total == 1 -> "THÊM SUẤT CHIẾU"
             else -> "THÊM $total SUẤT CHIẾU"
         }
+    }
+
+    private fun setShowtimeSaving(saving: Boolean, totalCount: Int = 0) {
+        isSavingShowtime = saving
+        if (_binding == null || !isAdded) return
+
+        binding.layoutShowtimeSaving.visibility = if (saving) View.VISIBLE else View.GONE
+        binding.btnSaveShowtime.isEnabled = !saving
+        binding.btnCancelEditShowtime.isEnabled = !saving
+        binding.spinnerShowtimeMovie.isEnabled = !saving
+        binding.cardShowtimeCinema.isEnabled = !saving
+        binding.cardShowtimeDate.isEnabled = !saving
+        binding.gridShowtimeTimes.isEnabled = !saving
+        binding.btnSaveShowtime.alpha = if (saving) 0.65f else 1f
+        binding.btnCancelEditShowtime.alpha = if (saving) 0.65f else 1f
+        binding.gridShowtimeTimes.alpha = if (saving) 0.65f else 1f
+        if (saving) {
+            updateShowtimeSavingProgress(totalCount = totalCount, savedCount = 0)
+        }
+        renderShowtimeChips()
+        updateShowtimeActionLabel()
+    }
+
+    private fun updateShowtimeSavingProgress(totalCount: Int, savedCount: Int) {
+        binding.progressShowtimeSaving.max = totalCount.coerceAtLeast(1)
+        binding.progressShowtimeSaving.progress = savedCount.coerceIn(0, totalCount.coerceAtLeast(1))
     }
 
     private fun summarizeSelection(
@@ -800,7 +839,7 @@ class ShowtimeManagementFragment : Fragment() {
     }
 
     private fun adminDateOptions(): List<String> {
-        return Common.initDate(daysAhead = 30)
+        return Common.initDate(daysAhead = MAX_SHOWTIME_DAYS_AHEAD)
     }
 
     override fun onDestroyView() {
@@ -813,11 +852,7 @@ class ShowtimeManagementFragment : Fragment() {
     companion object {
         private const val ALL_CINEMAS_FILTER = "Tất cả rạp"
         private const val FIRESTORE_BATCH_LIMIT = 450
+        private const val MAX_SHOWTIME_DAYS_AHEAD = 10
     }
 }
 
-private data class ShowtimeDraft(
-    val cinemaName: String,
-    val date: String,
-    val time: String
-)

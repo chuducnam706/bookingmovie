@@ -47,6 +47,8 @@ class DateAdapter(
 
 
         fun onClickItem(item: String, position: Int) {
+            if (position == selectedPosition) return
+
             val oldPosition = selectedPosition
             selectedPosition = position
 

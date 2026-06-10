@@ -1,7 +1,10 @@
 package com.example.film.ui.fragment
 
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import android.widget.Toast
 import com.example.film.database.FilmDTO
 import com.example.film.databinding.FragmentChooseFilmBinding
 import com.example.film.ui.activity.bookticket.BookingActivity
@@ -24,7 +27,7 @@ class ChooseFilmFragment :
     private lateinit var bannerAdapter: BannerAdapter
     private lateinit var viewModel: FilmViewModel
 
-    private val sliderHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val sliderHandler = Handler(Looper.getMainLooper())
     private val sliderRunnable = object : Runnable {
         override fun run() {
             val count = bannerAdapter.itemCount
@@ -109,7 +112,7 @@ class ChooseFilmFragment :
 
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
-                android.widget.Toast.makeText(context, it, android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
     }

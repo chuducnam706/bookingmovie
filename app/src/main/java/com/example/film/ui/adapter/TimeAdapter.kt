@@ -28,6 +28,8 @@ class TimeAdapter(
 
 
     fun updateData(newData: List<String>) {
+        if (data == newData && selectedPosition == 0) return
+
         data.clear()
         data.addAll(newData)
         selectedPosition = 0

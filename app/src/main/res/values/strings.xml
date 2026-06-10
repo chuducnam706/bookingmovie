@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">film</string>
+    <string name="app_name">Movie Ticket</string>
     <string name="nav_film">Film</string>
     <string name="nav_cinema">Cinema</string>
     <string name="nav_food">Food</string>

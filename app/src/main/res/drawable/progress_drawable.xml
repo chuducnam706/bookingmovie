@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Track (nền) -->
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/>
+            <corners android:radius="12dp"/>
+        </shape>
+    </item>
+
+    <!-- Secondary progress (nếu cần) -->
+    <item android:id="@android:id/secondaryProgress">
+        <scale
+            android:drawable="@drawable/shape_progress"
+            android:scaleWidth="100%"
+            android:useLevel="true" />
+    </item>
+
+    <!-- Primary progress -->
+    <item android:id="@android:id/progress">
+        <scale
+            android:drawable="@drawable/shape_progress"
+            android:scaleWidth="100%"
+            android:useLevel="true" />
+    </item>
+
+</layer-list>

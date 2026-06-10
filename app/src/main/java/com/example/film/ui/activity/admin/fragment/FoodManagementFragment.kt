@@ -1,11 +1,15 @@
 package com.example.film.ui.activity.admin.fragment
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.film.databinding.FragmentAdminFoodManagementBinding
 import com.example.film.model.FoodItem
 import com.example.film.ui.adapter.FoodManagementAdapter
@@ -19,6 +23,23 @@ class FoodManagementFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private lateinit var foodAdapter: FoodManagementAdapter
     private var foodListener: ListenerRegistration? = null
+    private var selectedFoodImageUri: Uri? = null
+
+    private val pickFoodImageLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri ?: return@registerForActivityResult
+        requireContext().contentResolver.takePersistableUriPermission(
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+        selectedFoodImageUri = uri
+        binding.edtFoodImage.setText(uri.toString())
+        binding.imgFoodPreview.visibility = View.VISIBLE
+        Glide.with(this)
+            .load(uri)
+            .into(binding.imgFoodPreview)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,6 +55,9 @@ class FoodManagementFragment : Fragment() {
 
         setupFoodRecyclerView()
         listenToFoods()
+        binding.btnPickFoodImage.setOnClickListener {
+            pickFoodImageLauncher.launch(arrayOf("image/*"))
+        }
         binding.btnAddFood.setOnClickListener { addNewFood() }
     }
 
@@ -91,6 +115,9 @@ class FoodManagementFragment : Fragment() {
                 binding.edtFoodName.text?.clear()
                 binding.edtFoodPrice.text?.clear()
                 binding.edtFoodImage.text?.clear()
+                selectedFoodImageUri = null
+                binding.imgFoodPreview.setImageDrawable(null)
+                binding.imgFoodPreview.visibility = View.GONE
                 Toast.makeText(requireContext(), "Đã thêm đồ ăn", Toast.LENGTH_SHORT).show()
             }
     }

@@ -34,24 +34,34 @@ class CinemaMovieAdapter(
     private val onShowtimeClick: (film: FilmDTO, time: String) -> Unit
 ) : RecyclerView.Adapter<CinemaMovieAdapter.ViewHolder>() {
 
+    private var showtimeTimesByMovieKey: Map<String, List<String>> = emptyMap()
+
     fun updateData(
         newMovies: List<FilmDTO>,
         date: String,
         newShowtimes: List<ShowtimeModel> = showtimes
     ) {
+        if (movies == newMovies && selectedDate == date && showtimes == newShowtimes) return
+
         movies = newMovies
         selectedDate = date
         showtimes = newShowtimes
+        rebuildShowtimeIndex()
         notifyDataSetChanged()
     }
 
     fun updateDate(date: String) {
+        if (selectedDate == date) return
+
         selectedDate = date
+        rebuildShowtimeIndex()
         notifyDataSetChanged()
     }
 
     /** Cập nhật filter khung giờ → re-render chip suất chiếu */
     fun updateTimeFilter(filter: String) {
+        if (timeFilter == filter) return
+
         timeFilter = filter
         notifyDataSetChanged()
     }
@@ -99,17 +109,7 @@ class CinemaMovieAdapter(
 
             binding.chipGroupShowtimes.removeAllViews()
 
-            val movieTitle = film.original_title.orEmpty()
-            val allTimes = showtimes
-                .filter {
-                    it.active &&
-                            Common.isSameDateKey(it.dateKey, selectedDate) &&
-                            ((film.id != 0 && it.movieId == film.id) || it.movieName == movieTitle)
-                }
-                .map { it.time }
-                .filter { it.isNotBlank() }
-                .distinct()
-                .sortedWith(compareBy { parseStartHour(it) ?: Int.MAX_VALUE })
+            val allTimes = showtimeTimesByMovieKey[movieKey(film)].orEmpty()
 
             // Lọc suất chiếu theo khung giờ đã chọn
             val filteredTimes = filterShowtimes(allTimes, timeFilter)
@@ -203,5 +203,29 @@ class CinemaMovieAdapter(
     private fun parseStartHour(showtime: String): Int? {
         val startPart = showtime.split(" - ").firstOrNull() ?: return null
         return startPart.substringBefore(":").trim().toIntOrNull()
+    }
+
+    private fun rebuildShowtimeIndex() {
+        showtimeTimesByMovieKey = showtimes
+            .filter {
+                it.active &&
+                        it.time.isNotBlank() &&
+                        Common.isSameDateKey(it.dateKey, selectedDate)
+            }
+            .groupBy { movieKey(it) }
+            .mapValues { (_, movieShowtimes) ->
+                movieShowtimes
+                    .map { it.time }
+                    .distinct()
+                    .sortedWith(compareBy { parseStartHour(it) ?: Int.MAX_VALUE })
+            }
+    }
+
+    private fun movieKey(film: FilmDTO): String {
+        return if (film.id != 0) "id_${film.id}" else "name_${film.original_title.orEmpty()}"
+    }
+
+    private fun movieKey(showtime: ShowtimeModel): String {
+        return if (showtime.movieId != 0) "id_${showtime.movieId}" else "name_${showtime.movieName}"
     }
 }

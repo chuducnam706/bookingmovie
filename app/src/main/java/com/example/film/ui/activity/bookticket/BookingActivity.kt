@@ -3,6 +3,7 @@ package com.example.film.ui.activity.bookticket
 import android.content.Intent
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.film.base.BaseActivity
 import com.example.film.databinding.ActivityBookingBinding
@@ -14,6 +15,9 @@ import com.example.film.ui.adapter.TimeAdapter
 import com.example.film.utils.Common
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBinding::inflate) {
@@ -24,6 +28,7 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
     private val db = FirebaseFirestore.getInstance()
     private var showtimeListener: ListenerRegistration? = null
     private var availableShowtimes: List<ShowtimeModel> = emptyList()
+    private var showtimeTimesByDateCinema: Map<String, Map<String, List<String>>> = emptyMap()
     private var selectedCinema: String = ""
     private var selectedDate: String = ""
     private var movieName: String = ""
@@ -39,6 +44,8 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
             refreshCinemaAndTimeOptions()
         }
         binding.lstDate.adapter = adapterDate
+        binding.lstDate.itemAnimator = null
+        binding.lstDate.setHasFixedSize(true)
 
         adapterCinema = CinemaAdapter(mutableListOf()) { cinema ->
             selectedCinema = cinema
@@ -50,6 +57,8 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
             }
         }
         binding.lstCinema.adapter = adapterCinema
+        binding.lstCinema.itemAnimator = null
+        binding.lstCinema.setHasFixedSize(true)
 
         movieName = intent.getStringExtra("movie_name") ?: ""
         moviePoster = intent.getStringExtra("movie_poster") ?: ""
@@ -77,6 +86,8 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
             startActivity(intent)
         }
         binding.lstTime.adapter = adapterTime
+        binding.lstTime.itemAnimator = null
+        binding.lstTime.setHasFixedSize(true)
 
         listenToShowtimes()
     }
@@ -95,23 +106,26 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
                     return@addSnapshotListener
                 }
 
-                availableShowtimes = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(ShowtimeModel::class.java)?.apply {
-                        id = doc.id
-                        if (showKey.isBlank()) showKey = doc.id
+                val documents = snapshot?.documents.orEmpty()
+                lifecycleScope.launch {
+                    val parsedShowtimes = withContext(Dispatchers.Default) {
+                        documents.mapNotNull { doc ->
+                            doc.toObject(ShowtimeModel::class.java)?.apply {
+                                id = doc.id
+                                if (showKey.isBlank()) showKey = doc.id
+                            }
+                        }.filter { it.active && !it.isExpired() }
                     }
-                }.orEmpty().filter { it.active && !it.isExpired() }
 
-                refreshCinemaAndTimeOptions()
+                    availableShowtimes = parsedShowtimes
+                    showtimeTimesByDateCinema = buildShowtimeIndex(parsedShowtimes)
+                    refreshCinemaAndTimeOptions()
+                }
             }
     }
 
     private fun refreshCinemaAndTimeOptions() {
-        val cinemas = availableShowtimes
-            .filter { Common.isSameDateKey(it.dateKey, selectedDate) }
-            .map { it.cinemaName }
-            .filter { it.isNotBlank() }
-            .distinct()
+        val cinemas = Common.initCinema()
 
         if (cinemas.isEmpty()) {
             selectedCinema = ""
@@ -131,22 +145,37 @@ class BookingActivity : BaseActivity<ActivityBookingBinding>(ActivityBookingBind
         adapterCinema.updateData(cinemas, selectedCinema)
         binding.lblCinema.visibility = View.VISIBLE
         binding.lstCinema.visibility = View.VISIBLE
-        binding.lblTime.visibility = View.VISIBLE
-        binding.lstTime.visibility = View.VISIBLE
         refreshTimeOptions()
     }
 
     private fun refreshTimeOptions() {
-        val times = availableShowtimes
-            .filter { Common.isSameDateKey(it.dateKey, selectedDate) && it.cinemaName == selectedCinema }
-            .map { it.time }
-            .filter { it.isNotBlank() }
-            .distinct()
-            .sortedWith(compareBy { parseStartHour(it) ?: Int.MAX_VALUE })
+        val times = showtimeTimesByDateCinema[Common.extractDateKey(selectedDate)]
+            ?.get(selectedCinema)
+            .orEmpty()
 
         adapterTime.updateData(times)
         binding.lblTime.visibility = if (times.isEmpty()) View.GONE else View.VISIBLE
         binding.lstTime.visibility = if (times.isEmpty()) View.GONE else View.VISIBLE
+    }
+
+    private fun buildShowtimeIndex(showtimes: List<ShowtimeModel>): Map<String, Map<String, List<String>>> {
+        return showtimes
+            .filter { it.cinemaName.isNotBlank() && it.time.isNotBlank() }
+            .groupBy { showtimeDateKey(it) }
+            .mapValues { (_, dayShowtimes) ->
+                dayShowtimes
+                    .groupBy { it.cinemaName }
+                    .mapValues { (_, cinemaShowtimes) ->
+                        cinemaShowtimes
+                            .map { it.time }
+                            .distinct()
+                            .sortedWith(compareBy { parseStartHour(it) ?: Int.MAX_VALUE })
+                    }
+            }
+    }
+
+    private fun showtimeDateKey(showtime: ShowtimeModel): String {
+        return Common.extractDateKey(showtime.dateKey.ifBlank { showtime.date })
     }
 
     private fun parseStartHour(showtime: String): Int? {

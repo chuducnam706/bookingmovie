@@ -126,6 +126,27 @@
                     android:text="THÊM SUẤT CHIẾU"
                     android:textColor="#FFFFFF" />
 
+                <LinearLayout
+                    android:id="@+id/layoutShowtimeSaving"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <ProgressBar
+                        android:id="@+id/progressShowtimeSaving"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:indeterminate="false"
+                        android:max="1"
+                        android:progress="0"
+                        android:progressTint="#3B82F6"
+                        android:progressBackgroundTint="#334155" />
+                </LinearLayout>
+
                 <Button
                     android:id="@+id/btnCancelEditShowtime"
                     android:layout_width="match_parent"

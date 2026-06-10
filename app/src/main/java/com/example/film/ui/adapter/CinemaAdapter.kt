@@ -29,9 +29,12 @@ class CinemaAdapter(
     override fun getItemCount(): Int = data.size
 
     fun updateData(newData: List<String>, selectedItem: String? = null) {
+        val newSelectedPosition = selectedItem?.let { newData.indexOf(it) }?.takeIf { it >= 0 } ?: 0
+        if (data == newData && selectedPosition == newSelectedPosition) return
+
         data.clear()
         data.addAll(newData)
-        selectedPosition = selectedItem?.let { data.indexOf(it) }?.takeIf { it >= 0 } ?: 0
+        selectedPosition = newSelectedPosition
         notifyDataSetChanged()
     }
 
@@ -51,6 +54,8 @@ class CinemaAdapter(
                 binding.imgCinema.imageTintList = ColorStateList.valueOf(Color.parseColor("#475569"))
             }
             binding.root.setOnClickListener {
+                if (position == selectedPosition) return@setOnClickListener
+
                 val oldPosition = selectedPosition
                 selectedPosition = position
                 notifyItemChanged(oldPosition)

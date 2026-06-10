@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.ViewModelProvider
 import com.example.film.database.FilmDTO
 import com.example.film.databinding.ActivityCinemaDetailBinding
@@ -17,6 +18,9 @@ import com.example.film.utils.Common
 import com.example.film.viewmodel.FilmViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CinemaDetailActivity : AppCompatActivity() {
 
@@ -69,6 +73,8 @@ class CinemaDetailActivity : AppCompatActivity() {
             updateMovieList()
         }
         binding.lstDate.adapter = dateAdapter
+        binding.lstDate.itemAnimator = null
+        binding.lstDate.setHasFixedSize(true)
     }
 
     private fun setupTimeFilter() {
@@ -81,6 +87,8 @@ class CinemaDetailActivity : AppCompatActivity() {
             movieAdapter.updateTimeFilter(filter)
         }
         binding.lstTimeFilter.adapter = timeFilterAdapter
+        binding.lstTimeFilter.itemAnimator = null
+        binding.lstTimeFilter.setHasFixedSize(true)
     }
 
     private fun setupMovieList() {
@@ -98,6 +106,8 @@ class CinemaDetailActivity : AppCompatActivity() {
             startActivity(intent)
         }
         binding.lstMovies.adapter = movieAdapter
+        binding.lstMovies.itemAnimator = null
+        binding.lstMovies.setHasFixedSize(true)
     }
 
     private fun observeViewModel() {
@@ -126,14 +136,19 @@ class CinemaDetailActivity : AppCompatActivity() {
                     return@addSnapshotListener
                 }
 
-                availableShowtimes = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(ShowtimeModel::class.java)?.apply {
-                        id = doc.id
-                        if (showKey.isBlank()) showKey = doc.id
+                val documents = snapshot?.documents.orEmpty()
+                lifecycleScope.launch {
+                    availableShowtimes = withContext(Dispatchers.Default) {
+                        documents.mapNotNull { doc ->
+                            doc.toObject(ShowtimeModel::class.java)?.apply {
+                                id = doc.id
+                                if (showKey.isBlank()) showKey = doc.id
+                            }
+                        }.filter { it.active }
                     }
-                }.orEmpty().filter { it.active }
 
-                updateMovieList()
+                    updateMovieList()
+                }
             }
     }
 
