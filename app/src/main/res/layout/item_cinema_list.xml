@@ -22,10 +22,9 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/baseline_arrow_back_ios_24"
             android:backgroundTint="#0F172A"
             android:padding="8dp"
-            android:src="@drawable/ic_scan"
+            android:src="@drawable/ic"
             app:tint="#3B82F6" />
 
         <LinearLayout
